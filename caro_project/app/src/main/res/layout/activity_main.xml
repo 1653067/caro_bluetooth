@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/index_activity"
+    android:background="@drawable/background_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+    <ImageButton
+        android:id="@+id/btn_setting_main"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="right"
+        android:background="@drawable/setting_main" />
+
+    <Button
+        android:id="@+id/btn_play"
+        android:layout_width="250dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="70dp"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/button_play_mainactivity"
+        android:shadowRadius="1"
+        android:text="Play"
+        android:textColor="#eee"
+        android:textSize="30dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioGroup
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:checkedButton="@+id/radio_play_bot"
+            android:gravity="center">
+
+            <RadioButton
+                android:id="@+id/radio_play_bot"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="Play with bot"
+                android:textSize="18dp" />
+
+
+            <RadioButton
+                android:id="@+id/radio_play_man"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="Play with friend"
+                android:textSize="18dp" />
+
+
+        </RadioGroup>
+
+        <ImageButton
+            android:id="@+id/btn_bluetooth_main"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|bottom"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/button_play_mainactivity"
+            app:srcCompat="@android:drawable/stat_sys_data_bluetooth" />
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/btn_exit_main"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="60dp"
+        android:background="@drawable/button_play_mainactivity"
+        android:text="Exit" />
+
+
+</LinearLayout>
