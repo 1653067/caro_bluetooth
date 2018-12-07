@@ -1,6 +1,7 @@
 package com.android16_team.caro_project;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -54,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 else if(playWithFriend.isChecked()==true){
                     //open activity play with friend
+                    Intent intent = new Intent(MainActivity.this, PlayWithFriend.class);
+                    startActivity(intent);
                 }
 
                 break;

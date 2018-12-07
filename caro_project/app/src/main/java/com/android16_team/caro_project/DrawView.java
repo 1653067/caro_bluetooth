@@ -297,4 +297,15 @@ public class DrawView extends View {
 
         return false;
     }
+
+    void resetBoard() {
+        for(int i=0; i<100; i++) {
+            for(int j=0; j<100; j++) {
+                checkedStates[i][j] = CheckedState.NONE;
+            }
+        }
+
+        finish = false;
+        invalidate();
+    }
 }
