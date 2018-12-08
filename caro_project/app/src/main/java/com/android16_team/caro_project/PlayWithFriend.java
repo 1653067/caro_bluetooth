@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -57,9 +58,6 @@ public class PlayWithFriend extends AppCompatActivity {
         setSupportActionBar(myToolbar);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-//         If the adapter is null, then Bluetooth is not supported
-
 
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
@@ -111,6 +109,7 @@ public class PlayWithFriend extends AppCompatActivity {
                 progressDialog.setMessage("Bạn có muốn chơi tiếp không?");
                 progressDialog.setTitle("Progress Dialog");
                 progressDialog.setIcon(R.drawable.icon_caro);
+                progressDialog.setCancelable(false);
                 isRunning = true;
                 progressDialog.setButton(ProgressDialog.BUTTON_POSITIVE, "Có", new DialogInterface.OnClickListener() {
                     @Override
@@ -142,6 +141,8 @@ public class PlayWithFriend extends AppCompatActivity {
                                 if (cur == max) {
                                     isRunning = false;
                                     progressDialog.dismiss();
+                                    sendMessage(MessageCaro.CONTINUE, "no");
+                                    PlayWithFriend.this.finish();
                                 }
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
@@ -214,22 +215,6 @@ public class PlayWithFriend extends AppCompatActivity {
 //                            break;
 //                    }
 //                    break;
-//                case Constants.MESSAGE_WRITE:
-//                    byte[] writeBuf = (byte[]) msg.obj;
-//                    //messageWrite(writeBuf, msg.arg1);
-//                    break;
-//                case Constants.MESSAGE_READ:
-//                    byte[] readBuf = (byte[]) msg.obj;
-//                    //messageRead(readBuf, msg.arg1);
-//                    break;
-//                case Constants.MESSAGE_DEVICE_NAME:
-//                    // save the connected device's name
-//                    mConnectedDeviceName = msg.getData().getString(Constants.DEVICE_NAME);
-//                    if (null != activity) {
-//                        Toast.makeText(activity, "Connected to "
-//                                + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
-//                    }
-//                    break;
                 case Constants.MESSAGE_WRITE: {
                     byte[] writeBuf = (byte[]) msg.obj;
                     // construct a string from the buffer
@@ -250,22 +235,22 @@ public class PlayWithFriend extends AppCompatActivity {
                         }
                         case MessageCaro.CONTINUE: {
                             Log.e("<<WRITE-CONTINUE>>", writeMessage);
-                            if(writeMessage.equals("yes")) {
-                                progressDialog = new ProgressDialog(PlayWithFriend.this);
-                                progressDialog.setMessage("Chờ đối thủ...");
-                                progressDialog.setCancelable(false);
-                                progressDialog.show();
-
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        while(isRunning) {
-
-                                        }
-                                    }
-                                }).start();
-                            } else {
-                                PlayWithFriend.this.finish();
+                            if (writeMessage.equals("yes")) {
+                                //Nếu mình chọn yes thì đợi xem đối phương có chấp nhận hay không?
+                                //Kiểm tra isContinue xem đối phương có chấp nhận trước đó chưa?
+                                if (isContinue == 1) {
+                                    drawView.resetBoard();
+                                    isContinue = 0;
+                                } else {
+                                    //Tạo ra dialog bảo người dùng chờ đối thủ chấp nhận
+                                    //Gán biến isRunning = false để báo rằng mình đã chấp nhận đánh tiếp
+                                    //Nếu thằng kia thoát đột ngột thì sao?
+                                    progressDialog = new ProgressDialog(PlayWithFriend.this);
+                                    progressDialog.setMessage("Chờ đối thủ...");
+                                    progressDialog.setCancelable(false);
+                                    progressDialog.show();
+                                    isRunning = false;
+                                }
                             }
                             break;
                         }
@@ -296,13 +281,29 @@ public class PlayWithFriend extends AppCompatActivity {
                         }
                         case MessageCaro.CONTINUE: {
                             Log.e("<<READ-CONTINUE>>", readMessage);
-                            if(readMessage.equals("yes")) {
-                                isRunning = false;
-                                drawView.resetBoard();
+                            if (readMessage.equals("yes")) {
+                                //Nếu người kia đồng ý mà mình chưa đồng ý thì
+                                //Nếu isRunning hiện tại là true tức là hiện tại người dùng chưa chấp nhận
+                                //isContinue hiện tại sẽ được gán là = 1 đánh dấu là đối thử chấp nhận tiếp tục đánh
+                                //Nếu người dùng đã chấp nhận tức là isRunning = false
+                                //thì sẽ resetBoard để tiếp tục đánh
+                                //Nhớ reset isContinue lại là 0
+                                //Dismiss dialog chờ đối thủ
+                                if (isRunning) {
+                                    isContinue = 1;
+                                } else {
+                                    drawView.resetBoard();
+                                    isContinue = 0;
+                                    progressDialog.dismiss();
+                                }
                             } else {
+                                //Nếu đối thủ không đồng ý thì sẽ ngưng đếm thời gian isRunning = false
+                                //Dismiss confirm
+                                //Hiển thị dialog thông báo cho người dùng rằng đối phương đã từ chối
                                 isRunning = false;
                                 progressDialog.dismiss();
-                                PlayWithFriend.this.finish();
+                                showAlertDialog();
+//                                PlayWithFriend.this.finish();
                             }
                         }
                     }
@@ -348,9 +349,9 @@ public class PlayWithFriend extends AppCompatActivity {
                 // Start the Bluetooth chat services
                 mChatService.start();
             }
+            mChatService.setmHandler(mHandler);
         }
 
-        mChatService.setmHandler(mHandler);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -409,15 +410,6 @@ public class PlayWithFriend extends AppCompatActivity {
         return true;
     }
 
-
-//    @Override
-//    public void onPrepareOptionsMenu(Menu menu) {
-//        MenuItem toggleModeItem = menu.findItem(R.id.toggle_mode);
-//        toggleModeItem.setTitle(toggleMode ? "O" : "X");
-//        toggleModeItem.setIcon(toggleMode ? R.drawable.ic_o_24dp: R.drawable.ic_x_24dp);
-//        super.onPrepareOptionsMenu(menu);
-//    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -454,6 +446,22 @@ public class PlayWithFriend extends AppCompatActivity {
             discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
             startActivity(discoverableIntent);
         }
+    }
+
+    private void showAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Caro");
+        builder.setIcon(R.drawable.icon_caro);
+        builder.setMessage("Đối thủ của bạn đã từ chối");
+        builder.setCancelable(false);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                PlayWithFriend.this.finish();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 }
 
