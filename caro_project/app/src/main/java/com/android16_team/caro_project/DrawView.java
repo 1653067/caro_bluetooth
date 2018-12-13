@@ -4,6 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Picture;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -46,6 +49,8 @@ public class DrawView extends View {
         for (int i = 0; i < 100; i++)
             for (int j = 0; j < 100; j++)
                 checkedStates[i][j] = CheckedState.NONE;
+        checkedStates[8][7] = CheckedState.O;
+        checkedStates[7][7] = CheckedState.X;
     }
 
     public int[][] getCheckedStates() {
@@ -59,7 +64,12 @@ public class DrawView extends View {
         width = canvas.getWidth();
         nCols = canvas.getWidth() / space + 1;
         nRows = canvas.getHeight() / space + 1;
-        paint.setColor(Color.rgb(191, 203, 209));
+        Drawable d = getResources().getDrawable(R.drawable.bg_board, null);
+//as getDrawable(int drawable) is deprecated
+        d.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        d.draw(canvas);
+        canvas.drawARGB(76, 255, 255, 255);
+        paint.setColor(Color.rgb(51, 51, 51));
         paint.setStrokeWidth(5);
         //vẽ dọc
         for (int i = 0; i < nCols; i++) {
@@ -74,8 +84,8 @@ public class DrawView extends View {
         for (int i = 0; i < nRows; i++) {
             for (int j = 0; j < nCols; j++) {
                 if (checkedStates[i][j] != CheckedState.NONE) {
-                    Node node = new Node(i,j);
-                    paintCheckedState(canvas, checkedStates[i][j], node );
+                    Node node = new Node(i, j);
+                    paintCheckedState(canvas, checkedStates[i][j], node);
                 }
             }
         }
@@ -87,14 +97,13 @@ public class DrawView extends View {
         int padding = 20;
         if (checkedState == CheckedState.O) {
             paint.setColor(Color.rgb(255, 0, 0));
+            paint.setStyle(Paint.Style.STROKE);
             int radius = space / 2 - padding + 5;
             canvas.drawCircle(node.getY() * space + space / 2, node.getX() * space + space / 2, radius, paint);
-            paint.setColor(Color.rgb(255, 255, 255));
-            canvas.drawCircle(node.getY() * space + space / 2, node.getX() * space + space / 2, radius - 10, paint);
-
-
-
-        } else if(checkedState == CheckedState.X) {
+//            paint.setColor(Color.rgb(255, 255, 255));
+//            canvas.drawCircle(node.getY() * space + space / 2, node.getX() * space + space / 2, radius - 10, paint);
+            paint.setStyle(Paint.Style.FILL);
+        } else if (checkedState == CheckedState.X) {
             paint.setStrokeWidth(10);
             paint.setColor(Color.rgb(0, 0, 255));
             canvas.drawLine(node.getY() * space + padding, node.getX() * space + padding, node.getY() * space + space - padding, node.getX() * 100 + 100 - padding, paint);
@@ -114,7 +123,7 @@ public class DrawView extends View {
     public void setCheckedStates(Node node) {
         if (checkedStates[node.getY()][node.getX()] == CheckedState.NONE) {
             checkedStates[node.getY()][node.getX()] = curState;
-            if(checkWin(node)) {
+            if (checkWin(node)) {
                 this.finish = true;
             }
             curState = curState == CheckedState.O ? CheckedState.X : CheckedState.O;
@@ -126,15 +135,16 @@ public class DrawView extends View {
     public String check(Float x, Float y) {
         int i = (int) (y / space);
         int j = (int) (x / space);
-        if(enabled && checkedStates[i][j] == CheckedState.NONE) {
+        if (enabled && checkedStates[i][j] == CheckedState.NONE) {
             return i + " " + j;
         }
         return null;
     }
-    public Node createNode(Float x , Float y){
+
+    public Node createNode(Float x, Float y) {
         int i = (int) (y / space);
         int j = (int) (x / space);
-        Node node = new Node(j,i);
+        Node node = new Node(j, i);
         return node;
     }
 
@@ -142,12 +152,12 @@ public class DrawView extends View {
         this.enabled = enabled;
     }
 
-    public void clearNextStack (){
-        if(this.nextStack != null)
-        this.nextStack.clear();
+    public void clearNextStack() {
+        if (this.nextStack != null)
+            this.nextStack.clear();
     }
 
-    public boolean isFinish(){
+    public boolean isFinish() {
         return finish;
     }
 
@@ -163,10 +173,10 @@ public class DrawView extends View {
         count2 = 0;
         for (int i = 1; i < 7; i++) {
             if (checkValid(y - i, x)) {
-                if (this.checkedStates[y-i][x] == this.curState) {
+                if (this.checkedStates[y - i][x] == this.curState) {
                     count1++;
                 } else {
-                    if (this.checkedStates[y - i][x] != this.curState && this.checkedStates[y-i][x] != CheckedState.NONE) {
+                    if (this.checkedStates[y - i][x] != this.curState && this.checkedStates[y - i][x] != CheckedState.NONE) {
                         count2++;
                     }
                     break;
@@ -176,10 +186,10 @@ public class DrawView extends View {
 
         for (int i = 1; i < 7; i++) {
             if (checkValid(y + i, x)) {
-                if (this.checkedStates[y+i][x] == this.curState) {
+                if (this.checkedStates[y + i][x] == this.curState) {
                     count1++;
                 } else {
-                    if (this.checkedStates[y + i][x] != this.curState && this.checkedStates[y-i][x] != CheckedState.NONE) {
+                    if (this.checkedStates[y + i][x] != this.curState && this.checkedStates[y - i][x] != CheckedState.NONE) {
                         count2++;
                     }
                     break;
@@ -196,11 +206,11 @@ public class DrawView extends View {
         count2 = 0;
 
         for (int i = 1; i < 7; i++) {
-            if (checkValid(y , x-i)) {
-                if (this.checkedStates[y][x-i] == this.curState) {
+            if (checkValid(y, x - i)) {
+                if (this.checkedStates[y][x - i] == this.curState) {
                     count1++;
                 } else {
-                    if (this.checkedStates[y ][x-i] != this.curState && this.checkedStates[y][x-i] != CheckedState.NONE) {
+                    if (this.checkedStates[y][x - i] != this.curState && this.checkedStates[y][x - i] != CheckedState.NONE) {
                         count2++;
                     }
                     break;
@@ -209,11 +219,11 @@ public class DrawView extends View {
         }
 
         for (int i = 1; i < 7; i++) {
-            if (checkValid(y , x+i)) {
-                if (this.checkedStates[y][x+i] == this.curState) {
+            if (checkValid(y, x + i)) {
+                if (this.checkedStates[y][x + i] == this.curState) {
                     count1++;
                 } else {
-                    if (this.checkedStates[y ][x+i] != this.curState && this.checkedStates[y][x+i] != CheckedState.NONE) {
+                    if (this.checkedStates[y][x + i] != this.curState && this.checkedStates[y][x + i] != CheckedState.NONE) {
                         count2++;
                     }
                     break;
@@ -231,11 +241,11 @@ public class DrawView extends View {
         count2 = 0;
 
         for (int i = 1; i < 7; i++) {
-            if (checkValid(y-i , x-i)) {
-                if (this.checkedStates[y-i][x-i] == this.curState) {
+            if (checkValid(y - i, x - i)) {
+                if (this.checkedStates[y - i][x - i] == this.curState) {
                     count1++;
                 } else {
-                    if (this.checkedStates[y-i ][x-i] != this.curState && this.checkedStates[y-i][x-i] != CheckedState.NONE) {
+                    if (this.checkedStates[y - i][x - i] != this.curState && this.checkedStates[y - i][x - i] != CheckedState.NONE) {
                         count2++;
                     }
                     break;
@@ -244,11 +254,11 @@ public class DrawView extends View {
         }
 
         for (int i = 1; i < 7; i++) {
-            if (checkValid(y+i , x+i)) {
-                if (this.checkedStates[y+i][x+i] == this.curState) {
+            if (checkValid(y + i, x + i)) {
+                if (this.checkedStates[y + i][x + i] == this.curState) {
                     count1++;
                 } else {
-                    if (this.checkedStates[y+i][x+i] != this.curState && this.checkedStates[y+i][x+i] != CheckedState.NONE) {
+                    if (this.checkedStates[y + i][x + i] != this.curState && this.checkedStates[y + i][x + i] != CheckedState.NONE) {
                         count2++;
                     }
                     break;
@@ -266,11 +276,11 @@ public class DrawView extends View {
         count2 = 0;
 
         for (int i = 1; i < 7; i++) {
-            if (checkValid(y-i , x+i)) {
-                if (this.checkedStates[y-i][x+i] == this.curState) {
+            if (checkValid(y - i, x + i)) {
+                if (this.checkedStates[y - i][x + i] == this.curState) {
                     count1++;
                 } else {
-                    if (this.checkedStates[y-i][x+i] != this.curState && this.checkedStates[y-i][x+i] != CheckedState.NONE) {
+                    if (this.checkedStates[y - i][x + i] != this.curState && this.checkedStates[y - i][x + i] != CheckedState.NONE) {
                         count2++;
                     }
                     break;
@@ -279,11 +289,11 @@ public class DrawView extends View {
         }
 
         for (int i = 1; i < 7; i++) {
-            if (checkValid(y+i , x-i)) {
-                if (this.checkedStates[y+i][x-i] == this.curState) {
+            if (checkValid(y + i, x - i)) {
+                if (this.checkedStates[y + i][x - i] == this.curState) {
                     count1++;
                 } else {
-                    if (this.checkedStates[y+i][x-i] != this.curState && this.checkedStates[y+i][x-i] != CheckedState.NONE) {
+                    if (this.checkedStates[y + i][x - i] != this.curState && this.checkedStates[y + i][x - i] != CheckedState.NONE) {
                         count2++;
                     }
                     break;
@@ -299,8 +309,8 @@ public class DrawView extends View {
     }
 
     void resetBoard() {
-        for(int i=0; i<100; i++) {
-            for(int j=0; j<100; j++) {
+        for (int i = 0; i < 100; i++) {
+            for (int j = 0; j < 100; j++) {
                 checkedStates[i][j] = CheckedState.NONE;
             }
         }

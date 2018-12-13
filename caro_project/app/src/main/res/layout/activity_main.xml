@@ -1,89 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/index_activity"
-    android:background="@drawable/background_main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
-
-    <ImageButton
-        android:id="@+id/btn_setting_main"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="right"
-        android:background="@drawable/setting_main" />
-
-    <Button
-        android:id="@+id/btn_play"
-        android:layout_width="250dp"
-        android:layout_height="100dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="70dp"
-        android:layout_marginBottom="30dp"
-        android:background="@drawable/button_play_mainactivity"
-        android:shadowRadius="1"
-        android:text="Play"
-        android:textColor="#eee"
-        android:textSize="30dp" />
+    android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/index_activity"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <RadioGroup
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:checkedButton="@+id/radio_play_bot"
-            android:gravity="center">
-
-            <RadioButton
-                android:id="@+id/radio_play_bot"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="5dp"
-                android:layout_weight="1"
-                android:text="Play with bot"
-                android:textSize="18dp" />
-
-
-            <RadioButton
-                android:id="@+id/radio_play_man"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="5dp"
-                android:layout_weight="1"
-                android:text="Play with friend"
-                android:textSize="18dp" />
-
-
-        </RadioGroup>
+        android:layout_height="match_parent"
+        android:background="@drawable/action_bar_bg"
+        android:orientation="vertical">
 
         <ImageButton
-            android:id="@+id/btn_bluetooth_main"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|bottom"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
+            android:id="@+id/btn_setting_main"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="right"
+            android:background="@drawable/setting_main" />
+
+        <Button
+            android:id="@+id/btn_playWithFriend"
+            android:layout_width="250dp"
+            android:layout_height="70dp"
+            android:textSize="20sp"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
             android:background="@drawable/button_play_mainactivity"
-            app:srcCompat="@android:drawable/stat_sys_data_bluetooth" />
-    </LinearLayout>
+            android:shadowRadius="1"
+            android:text="Chơi với bạn"
+            android:textColor="#000"
+            />
+        <Button
+            android:id="@+id/btn_playWithBot"
+            android:layout_width="250dp"
+            android:layout_height="70dp"
+            android:textSize="20sp"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:background="@drawable/button_play_mainactivity"
+            android:shadowRadius="1"
+            android:text="Chơi với máy"
+            android:textColor="#000"
+            />
+
+        <Button
+            android:id="@+id/btn_exit_main"
+            android:layout_width="@dimen/width_button_play"
+            android:layout_height="@dimen/height_button_play"
+            android:layout_gravity="center"
+            android:textSize="20sp"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/button_play_mainactivity"
+            android:text="Thoát" />
+
+        </LinearLayout>
 
 
-    <Button
-        android:id="@+id/btn_exit_main"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="60dp"
-        android:background="@drawable/button_play_mainactivity"
-        android:text="Exit" />
 
 
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

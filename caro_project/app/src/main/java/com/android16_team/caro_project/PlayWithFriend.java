@@ -49,12 +49,17 @@ public class PlayWithFriend extends AppCompatActivity {
 
     protected boolean isRunning = false;
     protected byte isContinue = 0;
+    protected CountDownTimer timer;
+
+    private boolean turn = false;
+
+    private Toolbar myToolbar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.caro_table);
-        final Toolbar myToolbar = findViewById(R.id.my_toolbar);
+        myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -97,7 +102,7 @@ public class PlayWithFriend extends AppCompatActivity {
 
 
         txtCountDownTimer = findViewById(R.id.countTimer);
-        CountDownTimer timer = new CountDownTimer(2000, 1000) {
+        timer = new CountDownTimer(15000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 txtCountDownTimer.setText("" + millisUntilFinished / 1000);
@@ -105,51 +110,9 @@ public class PlayWithFriend extends AppCompatActivity {
 
             @Override
             public void onFinish() {
-                progressDialog = new ProgressDialog(PlayWithFriend.this);
-                progressDialog.setMessage("Bạn có muốn chơi tiếp không?");
-                progressDialog.setTitle("Progress Dialog");
-                progressDialog.setIcon(R.drawable.icon_caro);
-                progressDialog.setCancelable(false);
-                isRunning = true;
-                progressDialog.setButton(ProgressDialog.BUTTON_POSITIVE, "Có", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        isRunning = false;
-                        progressDialog.dismiss();
-                        sendMessage(MessageCaro.CONTINUE, "yes");
-                    }
-                });
-
-                progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "Không", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        isRunning = false;
-                        progressDialog.dismiss();
-                        sendMessage(MessageCaro.CONTINUE, "no");
-                    }
-                });
-                progressDialog.show();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        int max = 10;
-                        int cur = 0;
-                        while (cur < max && isRunning) {
-                            try {
-                                Thread.sleep(1000);
-                                cur++;
-                                if (cur == max) {
-                                    isRunning = false;
-                                    progressDialog.dismiss();
-                                    sendMessage(MessageCaro.CONTINUE, "no");
-                                    PlayWithFriend.this.finish();
-                                }
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }).start();
+                if (turn) {
+                    sendMessage(MessageCaro.TIMEOUT, "");
+                }
             }
         }.start();
 
@@ -166,7 +129,7 @@ public class PlayWithFriend extends AppCompatActivity {
 
         // Check that there's actually something to send
         if (message.length() > 0) {
-            // Get the message bytes and tell the BluetoothChatService to write
+            // Get the message bytes and tell the BluetoothService to write
             message = " " + message;
             byte[] send = message.getBytes();
             send[0] = messageMode;
@@ -200,21 +163,21 @@ public class PlayWithFriend extends AppCompatActivity {
         public void handleMessage(Message msg) {
             Activity activity = PlayWithFriend.this;
             switch (msg.what) {
-//                case Constants.MESSAGE_STATE_CHANGE:
-//                    switch (msg.arg1) {
-//                        case BluetoothChatService.STATE_CONNECTED:
-//                            setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
+                case Constants.MESSAGE_STATE_CHANGE:
+                    switch (msg.arg1) {
+                        case BluetoothService.STATE_CONNECTED:
+                            setStatus(getString(R.string.title_connected_to) + mConnectedDeviceName);
 //                            mConversationArrayAdapter.clear();
-//                            break;
-//                        case BluetoothChatService.STATE_CONNECTING:
-//                            setStatus(R.string.title_connecting);
-//                            break;
-//                        case BluetoothChatService.STATE_LISTEN:
-//                        case BluetoothChatService.STATE_NONE:
-//                            setStatus(R.string.title_not_connected);
-//                            break;
-//                    }
-//                    break;
+                            break;
+                        case BluetoothService.STATE_CONNECTING:
+                            setStatus(getString(R.string.title_connecting));
+                            break;
+                        case BluetoothService.STATE_LISTEN:
+                        case BluetoothService.STATE_NONE:
+                            setStatus(getString(R.string.title_not_connected));
+                            break;
+                    }
+                    break;
                 case Constants.MESSAGE_WRITE: {
                     byte[] writeBuf = (byte[]) msg.obj;
                     // construct a string from the buffer
@@ -227,9 +190,13 @@ public class PlayWithFriend extends AppCompatActivity {
                             String[] pos = writeMessage.split(" ");
                             int i = Integer.parseInt(pos[0]);
                             int j = Integer.parseInt(pos[1]);
-                            drawView.setCheckedStates(new Node(i, j));
+                            drawView.setCheckedStates(new Node(j, i));
+                            timer.cancel();
+                            timer.start();
+                            turn = !turn;
                             if (drawView.isFinish()) {
-
+                                turn = true;
+                                showConfirmDialog();
                             }
                             break;
                         }
@@ -254,6 +221,12 @@ public class PlayWithFriend extends AppCompatActivity {
                             }
                             break;
                         }
+                        case MessageCaro.TIMEOUT: {
+                            //Nhớ sửa nha cu
+                            Log.e("<<WRITE-TIMEOUT>>", writeMessage);
+                            showConfirmDialog();
+                        }
+                        break;
                     }
                 }
                 break;
@@ -269,7 +242,14 @@ public class PlayWithFriend extends AppCompatActivity {
                             String[] pos = readMessage.split(" ");
                             int i = Integer.parseInt(pos[0]);
                             int j = Integer.parseInt(pos[1]);
-                            drawView.setCheckedStates(new Node(i, j));
+                            drawView.setCheckedStates(new Node(j, i));
+                            timer.cancel();
+                            timer.start();
+                            turn = !turn;
+                            if (drawView.isFinish()) {
+                                showConfirmDialog();
+                                turn = false;
+                            }
                             break;
                         }
                         case MessageCaro.MESSAGE: {
@@ -305,6 +285,12 @@ public class PlayWithFriend extends AppCompatActivity {
                                 showAlertDialog();
 //                                PlayWithFriend.this.finish();
                             }
+                            break;
+                        }
+                        case MessageCaro.TIMEOUT: {
+                            Log.e("<<READ-TIMEOUT>>", readMessage);
+                            showConfirmDialog();
+                            break;
                         }
                     }
 
@@ -350,6 +336,8 @@ public class PlayWithFriend extends AppCompatActivity {
                 mChatService.start();
             }
             mChatService.setmHandler(mHandler);
+        } else {
+            setupChat();
         }
 
     }
@@ -417,6 +405,7 @@ public class PlayWithFriend extends AppCompatActivity {
                 // Launch the DeviceListActivity to see devices and do scan
                 Intent serverIntent = new Intent(PlayWithFriend.this, DeviceListActivity.class);
                 startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE);
+                turn = true;
                 return true;
             }
             case R.id.insecure_connect_scan: {
@@ -462,6 +451,58 @@ public class PlayWithFriend extends AppCompatActivity {
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    private void showConfirmDialog() {
+        progressDialog = new ProgressDialog(PlayWithFriend.this);
+        progressDialog.setMessage("Bạn có muốn chơi tiếp không?");
+        progressDialog.setTitle("Progress Dialog");
+        progressDialog.setIcon(R.drawable.icon_caro);
+        progressDialog.setCancelable(false);
+        isRunning = true;
+        progressDialog.setButton(ProgressDialog.BUTTON_POSITIVE, "Có", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                isRunning = false;
+                progressDialog.dismiss();
+                sendMessage(MessageCaro.CONTINUE, "yes");
+            }
+        });
+
+        progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "Không", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                isRunning = false;
+                progressDialog.dismiss();
+                sendMessage(MessageCaro.CONTINUE, "no");
+            }
+        });
+        progressDialog.show();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int max = 10;
+                int cur = 0;
+                while (cur < max && isRunning) {
+                    try {
+                        Thread.sleep(1000);
+                        cur++;
+                        if (cur == max) {
+                            isRunning = false;
+                            progressDialog.dismiss();
+                            sendMessage(MessageCaro.CONTINUE, "no");
+                            PlayWithFriend.this.finish();
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    private void setStatus(String status) {
+        myToolbar.setSubtitle(status);
     }
 }
 
