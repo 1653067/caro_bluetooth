@@ -1,8 +1,9 @@
 package com.android16_team.caro_project;
 
 import android.content.Context;
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -51,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_play:
                 if (playWithBot.isChecked()==true){
                     //open activity play with bot
+                    Intent intentBot = new Intent(MainActivity.this, PlayWithBot.class);
+                    startActivity(intentBot);
                 }
                 else if(playWithFriend.isChecked()==true){
                     //open activity play with friend
