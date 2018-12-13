@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <size
+                android:width="@dimen/width_button_play"
+                android:height="@dimen/height_button_play"></size>
+            <solid android:color="#ffd948" />
+            <padding
+                android:bottom="@dimen/padding_button_play"
+                android:left="@dimen/padding_button_play"
+                android:right="@dimen/padding_button_play"
+                android:top="@dimen/padding_button_play"></padding>
+            <corners android:radius="@dimen/radius_button_play"></corners>
+            <stroke
+                android:width="@dimen/stoke_button_play"
+                android:color="#a78500"></stroke>
+        </shape>
+    </item>
+    <item android:gravity="bottom">
+        <shape android:shape="rectangle">
+            <size
+                android:width="@dimen/width_button_play_second"
+                android:height="@dimen/height_button_play_second"></size>
+            <solid android:color="#ffcc00"></solid>
+            <corners
+                android:bottomLeftRadius="@dimen/radius_button_play"
+                android:bottomRightRadius="@dimen/radius_button_play"></corners>
+
+        </shape>
+    </item>
+
+</layer-list>

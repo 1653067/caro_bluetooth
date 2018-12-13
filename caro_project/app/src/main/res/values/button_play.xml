@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="width_button_play">250dp</dimen>
+    <dimen name="height_button_play">70dp</dimen>
+    <dimen name="width_button_play_second">250dp</dimen>
+    <dimen name="height_button_play_second">30dp</dimen>
+    <dimen name="padding_button_play">5dp</dimen>
+    <dimen name="radius_button_play">8dp</dimen>
+    <dimen name="stoke_button_play">2dp</dimen>
+</resources>
