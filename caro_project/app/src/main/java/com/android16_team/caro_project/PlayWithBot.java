@@ -23,7 +23,7 @@ public class PlayWithBot extends AppCompatActivity  {
     private int[][] tmpBoard=new int[30][30];
     private ScaleGestureDetector scale;
     private boolean flagmove = false;
-    private int pinch = 0;
+    private boolean pinch = false;
     private int mPtrCount = 0;
     private int space = 100;
     private int padding = 10;
@@ -69,9 +69,9 @@ public class PlayWithBot extends AppCompatActivity  {
                     }
                     case MotionEvent.ACTION_POINTER_UP:
                     case MotionEvent.ACTION_UP: {
-                        if (flagmove || pinch != 0) {
+                        if (flagmove || pinch) {
                             mPtrCount--;
-                            pinch --;
+                            pinch = false;
                             flagmove = false;
                         } else { //danh o day
                             mPtrCount--;
@@ -205,7 +205,7 @@ public class PlayWithBot extends AppCompatActivity  {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            pinch = 2;
+            pinch = true;
             mScaleFactor = detector.getScaleFactor();
             space = Math.round(mScaleFactor * space) ;
             padding = Math.round(mScaleFactor* padding);

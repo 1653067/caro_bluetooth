@@ -4,8 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Picture;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -38,23 +36,25 @@ public class DrawView extends View {
 
     public DrawView(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public DrawView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
     public DrawView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        init();
     }
 
-    private void init(Context context) {
+    public void init() {
         for (int i = 0; i < size; i++)
             for (int j = 0; j < size; j++)
                 checkedStates[i][j] = CheckedState.NONE;
+
+        finish = false;
     }
 
     public int[][] getCheckedStates() {
@@ -68,11 +68,7 @@ public class DrawView extends View {
         width = canvas.getWidth();
         nCols = canvas.getWidth() / space + 1;
         nRows = canvas.getHeight() / space + 1;
-        Drawable d = getResources().getDrawable(R.drawable.bg_board, null);
-        d.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        d.draw(canvas);
-        canvas.drawARGB(76, 255, 255, 255);
-        paint.setColor(Color.rgb(51, 51, 51));
+        paint.setColor(Color.rgb(191, 203, 209));
         paint.setStrokeWidth(5);
         //vẽ dọc
         for (int i = 0; i < 30; i++) {
@@ -87,8 +83,8 @@ public class DrawView extends View {
         for (int i = 0; i < nRows; i++) {
             for (int j = 0; j < nCols; j++) {
                 if (checkedStates[i][j] != CheckedState.NONE) {
-                    Node node = new Node(i, j);
-                    paintCheckedState(canvas, checkedStates[i][j], node);
+                    Node node = new Node(i,j);
+                    paintCheckedState(canvas, checkedStates[i][j], node );
                 }
             }
         }
@@ -145,13 +141,13 @@ public class DrawView extends View {
     public void setCheckedStates(Node node) {
         if (checkedStates[node.getY()][node.getX()] == CheckedState.NONE) {
             checkedStates[node.getY()][node.getX()] = curState;
-            if (checkWin(node)) {
+            if(checkWin(node)) {
                 this.finish = true;
             }
             curState = curState == CheckedState.O ? CheckedState.X : CheckedState.O;
             enabled = true;
         }
-       // postInvalidate();
+        // postInvalidate();
 
     }
 
@@ -174,12 +170,12 @@ public class DrawView extends View {
         this.enabled = enabled;
     }
 
-    public void clearNextStack() {
-        if (this.nextStack != null)
+    public void clearNextStack (){
+        if(this.nextStack != null)
             this.nextStack.clear();
     }
 
-    public boolean isFinish() {
+    public boolean isFinish(){
         return finish;
     }
 
@@ -343,18 +339,6 @@ public class DrawView extends View {
     public void setSpace(int space, int padding) {
         this.space = space;
         this.padding = padding;
-        invalidate();
-    }
-
-
-    void resetBoard() {
-        for (int i = 0; i < 30; i++) {
-            for (int j = 0; j < 30; j++) {
-                checkedStates[i][j] = CheckedState.NONE;
-            }
-        }
-
-        finish = false;
         invalidate();
     }
 }

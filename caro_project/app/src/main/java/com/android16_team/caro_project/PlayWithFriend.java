@@ -206,7 +206,7 @@ public class PlayWithFriend extends AppCompatActivity {
                                 //Nếu mình chọn yes thì đợi xem đối phương có chấp nhận hay không?
                                 //Kiểm tra isContinue xem đối phương có chấp nhận trước đó chưa?
                                 if (isContinue == 1) {
-                                    drawView.resetBoard();
+                                    drawView.init();
                                     isContinue = 0;
                                 } else {
                                     //Tạo ra dialog bảo người dùng chờ đối thủ chấp nhận
@@ -266,13 +266,13 @@ public class PlayWithFriend extends AppCompatActivity {
                                 //Nếu isRunning hiện tại là true tức là hiện tại người dùng chưa chấp nhận
                                 //isContinue hiện tại sẽ được gán là = 1 đánh dấu là đối thử chấp nhận tiếp tục đánh
                                 //Nếu người dùng đã chấp nhận tức là isRunning = false
-                                //thì sẽ resetBoard để tiếp tục đánh
+                                //thì sẽ init để tiếp tục đánh
                                 //Nhớ reset isContinue lại là 0
                                 //Dismiss dialog chờ đối thủ
                                 if (isRunning) {
                                     isContinue = 1;
                                 } else {
-                                    drawView.resetBoard();
+                                    drawView.init();
                                     isContinue = 0;
                                     progressDialog.dismiss();
                                 }
