@@ -17,6 +17,11 @@ public class Node {
         this.y = y;
         this.value = value;
     }
+    public void swapnode(){
+        int tmp = this.x;
+        this.x = this.y;
+        this.y = tmp;
+    }
 
     public int getX () {
         return this.x;

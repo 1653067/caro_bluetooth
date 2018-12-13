@@ -2,9 +2,8 @@ package com.android16_team.caro_project;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.design.button.MaterialButton;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -47,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btn_playWithBot:
+                    Intent intentBot = new Intent(MainActivity.this, PlayWithBot.class);
+                    startActivity(intentBot);
                 break;
             case R.id.btn_playWithFriend:
                 startActivity(new Intent(MainActivity.this, PlayWithFriend.class));
