@@ -57,7 +57,13 @@ public class DrawView extends View {
         for (int i = 0; i < size; i++)
             for (int j = 0; j < size; j++)
                 checkedStates[i][j] = CheckedState.NONE;
-
+        curX = -1;
+        curY = -1;
+        dx = 0;
+        dy =0;
+        curState = CheckedState.O;
+        space = 100;
+        padding = 10;
         finish = false;
     }
 
@@ -95,8 +101,8 @@ public class DrawView extends View {
             paint.setStyle(Paint.Style.FILL_AND_STROKE);
         }
 
-        for (int i = 0; i < nRows; i++) {
-            for (int j = 0; j < nCols; j++) {
+        for (int i = 0; i < 30; i++) {
+            for (int j = 0; j < 30; j++) {
                 if (checkedStates[i][j] != CheckedState.NONE) {
                     Node node = new Node(i,j);
                     paintCheckedState(canvas, checkedStates[i][j], node );
@@ -164,8 +170,11 @@ public class DrawView extends View {
     }
 
     public void setCheckedStates(Node node) {
+
         if (checkedStates[node.getY()][node.getX()] == CheckedState.NONE) {
             checkedStates[node.getY()][node.getX()] = curState;
+            clearNextStack();
+            this.preStack.push(node);
             if(checkWin(node)) {
                 this.finish = true;
             }
@@ -201,6 +210,13 @@ public class DrawView extends View {
         if(this.nextStack != null)
             this.nextStack.clear();
     }
+    public void clearPreStack(){
+        if(this.preStack!= null)
+            this.preStack.clear();
+    }
+
+
+
 
     public boolean isFinish(){
         return finish;
@@ -372,4 +388,38 @@ public class DrawView extends View {
     public void changeState() {
         curState = curState == CheckedState.O ? CheckedState.X : CheckedState.O;
     }
+    public void undo(){
+        if(this.preStack!= null && !this.preStack.empty()) {
+            Node n = this.preStack.pop();
+            checkedStates[n.getY()][n.getX()] = CheckedState.NONE;
+            invalidate();
+            curState = curState == CheckedState.O ? CheckedState.X : CheckedState.O;
+            this.nextStack.push(n);
+            if(!this.preStack.empty()){
+                curX = this.preStack.lastElement().getX();
+                curY = this.preStack.lastElement().getY();
+            }
+            else{
+                curX = -1;
+                curY = -1;
+            }
+        }
+    }
+    public void redo(){
+        if(this.nextStack!= null && !nextStack.empty()){
+            Node n = this.nextStack.pop();
+            checkedStates[n.getY()][n.getX()] = curState;
+            invalidate();
+            curState = curState == CheckedState.O ? CheckedState.X : CheckedState.O;
+            this.preStack.push(n);
+            curX = n.getX();
+            curY = n.getY();
+        }
+    }
+    public void createstack(){
+        nextStack = new Stack<Node>();
+        preStack = new Stack<Node>();
+
+    }
+
 }

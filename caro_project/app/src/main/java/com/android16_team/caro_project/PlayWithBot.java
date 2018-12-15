@@ -14,6 +14,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -27,6 +30,7 @@ public class PlayWithBot extends AppCompatActivity {
 
     public static final int WIN = 1;
     public static final int LOSE = 2;
+    public static final int CHANGE_ICON = 3;
 
     private DrawView drawView;
     private TextView txtCountDownTimer;
@@ -36,8 +40,8 @@ public class PlayWithBot extends AppCompatActivity {
     private int[][] tmpBoard = new int[30][30];
     private ScaleGestureDetector scale;
     private boolean flagmove = false;
-    private boolean pinch = false;
-    private int mPtrCount = 0;
+    private boolean changeturn = false;
+    private int pinch = 0;
     private int space = 100;
     private int padding = 10;
     private float mPosX = 0;
@@ -46,6 +50,7 @@ public class PlayWithBot extends AppCompatActivity {
     private float mLastTouchX;
     private float mLastTouchY;
     private Toolbar myToolbar;
+    private boolean toggleMode = true;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,8 +58,10 @@ public class PlayWithBot extends AppCompatActivity {
         setContentView(R.layout.caro_table);
         setContentView(R.layout.caro_table);
         myToolbar = findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
         myToolbar.setTitle("BOT ĐẸP TRAI");
         drawView = findViewById(R.id.drawView);
+        drawView.createstack();
         bot = new AlphaBeta(20, 3);
         mScaleDetector = new ScaleGestureDetector(PlayWithBot.this, new zoom());
         btnMessage = findViewById(R.id.btnMessage);
@@ -66,7 +73,7 @@ public class PlayWithBot extends AppCompatActivity {
         bot.setBoard(tmpBoard);
 
 
-//        btnMessage.hide();
+
 
 
         drawView.setOnTouchListener(new View.OnTouchListener() {
@@ -77,7 +84,6 @@ public class PlayWithBot extends AppCompatActivity {
                 switch (action) {
                     case MotionEvent.ACTION_POINTER_DOWN:
                     case MotionEvent.ACTION_DOWN: {
-                        mPtrCount++;
                         final float x = event.getX();
                         final float y = event.getY();
 
@@ -88,16 +94,16 @@ public class PlayWithBot extends AppCompatActivity {
                     }
                     case MotionEvent.ACTION_POINTER_UP:
                     case MotionEvent.ACTION_UP: {
-                        if (flagmove || pinch) {
-                            mPtrCount--;
-                            pinch = false;
+                        if (flagmove || pinch!=0) {
+                            if(flagmove == false){
+                                pinch--;
+                            }
                             flagmove = false;
                         } else { //danh o day
-                            mPtrCount--;
                             cx = event.getX();
                             cy = event.getY();
                             String msg = drawView.check(cx, cy);
-                            if (drawView.getCurState() == CheckedState.O && !drawView.isFinish() && msg != null) {//neu vi tri hop le
+                            if (((!toggleMode && drawView.getCurState() == CheckedState.X)||(toggleMode && drawView.getCurState() == CheckedState.O)) && !drawView.isFinish() && msg != null) {//neu vi tri hop le
                                 Node node = drawView.createNode(cx, cy);
                                 drawView.setCheckedStates(node);
                                 drawView.invalidate();
@@ -109,7 +115,8 @@ public class PlayWithBot extends AppCompatActivity {
                                     Toast.makeText(PlayWithBot.this, "win", Toast.LENGTH_SHORT).show();
 
                                 } else {
-                                    tmpBoard[node.getY()][node.getX()] = drawView.getCheckedStates()[node.getY()][node.getX()];
+                                    if(toggleMode)tmpBoard[node.getY()][node.getX()] = drawView.getCheckedStates()[node.getY()][node.getX()];
+                                    else tmpBoard[node.getY()][node.getX()] = drawView.getCheckedStates()[node.getY()][node.getX()]==1?2:1;
                                     Thread run = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -117,8 +124,12 @@ public class PlayWithBot extends AppCompatActivity {
                                             // not win -> bot play
                                             Node nodes = bot.getBestNode();
                                             nodes.swapnode();
+                                            if(toggleMode)
                                             tmpBoard[nodes.getY()][nodes.getX()] = drawView.getCurState();
+                                            else
+                                            tmpBoard[nodes.getY()][nodes.getX()] = drawView.getCurState()==1?2:1;
                                             drawView.setCheckedStates(nodes);
+                                            drawView.clearNextStack();
                                             drawView.post(new Runnable() {
                                                 @Override
                                                 public void run() {
@@ -216,7 +227,7 @@ public class PlayWithBot extends AppCompatActivity {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            pinch = true;
+            pinch = 2;
             mScaleFactor = detector.getScaleFactor();
             space = Math.round(mScaleFactor * space);
             padding = Math.round(mScaleFactor * padding);
@@ -229,53 +240,34 @@ public class PlayWithBot extends AppCompatActivity {
     }
 
     private void showAlertDialog(String title, String message) {
-//        final Context context = PlayWithBot.this;
-////
-////        final Dialog dialog = new Dialog(context);
-////        dialog.setContentView(R.layout.alert_dialog);
-////        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-////        TextView txtTitle = dialog.findViewById(R.id.dialogTitle);
-////        txtTitle.setText(title);
-////        TextView txtMessage = dialog.findViewById(R.id.dialogMessage);
-////        txtMessage.setText(message);
-////        dialog.setCancelable(false);
-////        Button btnPositive = dialog.findViewById(R.id.btnPositive);
-////        btnPositive.setText("Chơi tiếp");
-////        btnPositive.setOnClickListener(new View.OnClickListener() {
-////            @Override
-////            public void onClick(View v) {
-////                drawView.init();
-////                drawView.invalidate();
-////                dialog.dismiss();
-////            }
-////        });
-////
-////        Button btnNegative = dialog.findViewById(R.id.btnNegative);
-////        btnNegative.setText("Thoát");
-////        btnNegative.setOnClickListener(new View.OnClickListener() {
-////            @Override
-////            public void onClick(View v) {
-////                ((Activity) context).finish();
-////            }
-////        });
-////
-////        dialog.show();
 
         final ConfirmDialog dialog = new ConfirmDialog(PlayWithBot.this);
         dialog.setTitle(title);
         dialog.setMessage(message);
-        dialog.setButton(ConfirmDialog.PositiveButton, "Chơi tiếp", new View.OnClickListener() {
+        dialog.setButton(ConfirmDialog.PositiveButton, "Ván mới", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 drawView.init();
-                drawView.invalidate();
                 dialog.dismiss();
+                if(changeturn){
+                    toggleMode = toggleMode?false:true;
+                    invalidateOptionsMenu();
+                }
+                resetboard();
+                if(!toggleMode){
+                    //nguoi danh sau
+                    Node n = new Node(7,12);
+                    drawView.setCheckedStates(n);
+
+                }
+                drawView.invalidate();
             }
         });
 
         dialog.setButton(ConfirmDialog.NegativeButton, "Thoát", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dialog.dismiss();
                 PlayWithBot.this.finish();
             }
         });
@@ -293,7 +285,70 @@ public class PlayWithBot extends AppCompatActivity {
                 case LOSE:
                     showAlertDialog("Thông báo", "Bạn đã thua");
                     break;
+                case CHANGE_ICON:
+                    showAlertDialog("Thông báo", "Đổi lượt và Reset bàn cờ?");
+                    break;
             }
         }
     };
+
+    private void resetboard(){
+          flagmove = false;
+          pinch = 0;
+          space = 100;
+          padding = 10;
+          mPosX = 0;
+          mPosY = 0;
+          changeturn = false;
+        for(int i = 0 ; i < 30*30;i++){
+            tmpBoard[i/30][i%30] = 0;
+        }
+        drawView.clearNextStack();
+        drawView.clearPreStack();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_bot, menu);
+        MenuItem toggleModeItem = menu.findItem(R.id.change_icon);
+        toggleModeItem.setTitle(toggleMode ? "O" : "X");
+        toggleModeItem.setIcon(toggleMode ? R.drawable.ic_o_24dp : R.drawable.ic_x_24dp);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.undo:
+                drawView.undo();
+                drawView.undo();
+                updatetmpboard();
+                return true;
+            case R.id.redo:
+                drawView.redo();
+                drawView.redo();
+                updatetmpboard();
+                return true;
+            case R.id.change_icon:
+                changeturn = true;
+                mHandler.obtainMessage(CHANGE_ICON).sendToTarget();
+                return true;
+            case R.id.option:
+
+        }
+        return false;
+
+    }
+    private void updatetmpboard(){
+        for(int i = 0 ; i < 30*30;i++){
+            if(toggleMode)
+            this.tmpBoard[i/30][i%30] = drawView.getCheckedStates()[i/30][i%30];
+            else{
+                if (drawView.getCheckedStates()[i/30][i%30]==0) this.tmpBoard[i/30][i%30]=0;
+                else tmpBoard[i/30][i%30] = drawView.getCheckedStates()[i/30][i%30]==1?2:1;
+            }
+        }
+    }
+
 }

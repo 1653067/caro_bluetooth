@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/change_icon"
+        android:title="O"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/undo"
+        app:showAsAction="always"
+        android:icon="@drawable/undo"
+        android:title="undo"/>
+
+    <item
+        android:id="@+id/redo"
+        app:showAsAction="always"
+        android:icon="@drawable/redo"
+        android:title="redo"/>
+
+    <item
+        android:id="@+id/option"
+        app:showAsAction="ifRoom"
+        android:title="option"/>
+
+</menu>
