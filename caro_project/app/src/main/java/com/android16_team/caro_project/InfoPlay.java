@@ -10,13 +10,26 @@ public class InfoPlay implements Serializable {
     private int noStones;
     private int noTurns;
     private String name;
+    private boolean music;
+    private boolean sound;
 
-    public InfoPlay() {
+    private static InfoPlay instance = null;
+
+    private InfoPlay() {
         haveStone = false;
         haveSwapTurn = false;
+        music = true;
+        sound = true;
         noStones = 0;
         noTurns = 0;
         name = "Người chơi";
+    }
+
+    public static InfoPlay getInstance() {
+        if(instance == null) {
+            instance = new InfoPlay();
+        }
+        return instance;
     }
 
     public boolean isHaveStone() {
@@ -57,5 +70,37 @@ public class InfoPlay implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isMusic() {
+        return music;
+    }
+
+    public void setMusic(boolean music) {
+        this.music = music;
+    }
+
+    public boolean isSound() {
+        return sound;
+    }
+
+    public void setSound(boolean sound) {
+        this.sound = sound;
+    }
+
+    public void setInfoPlay(String data) {
+        String []items = data.split(";");
+        instance.setName(items[0]);
+        instance.setHaveStone(Boolean.parseBoolean(items[1]));
+        instance.setHaveSwapTurn(Boolean.parseBoolean(items[2]));
+        instance.setMusic(Boolean.parseBoolean(items[3]));
+        instance.setSound(Boolean.parseBoolean(items[4]));
+        instance.setNoStones(Integer.parseInt(items[5]));
+        instance.setNoTurns(Integer.parseInt(items[6]));
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s;%s;%s;%s;%s;%d;%d", name, haveStone, haveSwapTurn, music, sound, noStones, noTurns);
     }
 }

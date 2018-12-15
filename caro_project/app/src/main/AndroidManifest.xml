@@ -27,6 +27,7 @@
             android:configChanges="orientation|keyboardHidden"
             android:label="Select device"
             android:theme="@style/DialogTheme"/>
+        <service android:name=".MusicService"></service>
     </application>
 
 </manifest>
