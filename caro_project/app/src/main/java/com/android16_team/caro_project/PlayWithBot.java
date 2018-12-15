@@ -1,26 +1,39 @@
 package com.android16_team.caro_project;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class PlayWithBot extends AppCompatActivity  {
+public class PlayWithBot extends AppCompatActivity {
+
+    public static final int WIN = 1;
+    public static final int LOSE = 2;
+
     private DrawView drawView;
     private TextView txtCountDownTimer;
-    private float cx,cy;
+    private float cx, cy;
     private ImageButton btnMessage;
     private AlphaBeta bot;
-    private int[][] tmpBoard=new int[30][30];
+    private int[][] tmpBoard = new int[30][30];
     private ScaleGestureDetector scale;
     private boolean flagmove = false;
     private boolean pinch = false;
@@ -32,17 +45,23 @@ public class PlayWithBot extends AppCompatActivity  {
     private ScaleGestureDetector mScaleDetector;
     private float mLastTouchX;
     private float mLastTouchY;
+    private Toolbar myToolbar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.caro_table);
+        setContentView(R.layout.caro_table);
+        myToolbar = findViewById(R.id.my_toolbar);
+        myToolbar.setTitle("BOT ĐẸP TRAI");
         drawView = findViewById(R.id.drawView);
-        bot = new AlphaBeta(20,3);
-        mScaleDetector = new ScaleGestureDetector(PlayWithBot.this,new zoom());
+        bot = new AlphaBeta(20, 3);
+        mScaleDetector = new ScaleGestureDetector(PlayWithBot.this, new zoom());
         btnMessage = findViewById(R.id.btnMessage);
-        for(int i = 0 ; i < 30*30;i++){
-            tmpBoard[i/30][i%30] = 0;
+        btnMessage.setVisibility(View.INVISIBLE);
+        findViewById(R.id.txtWaitingMsg).setVisibility(View.INVISIBLE);
+        for (int i = 0; i < 30 * 30; i++) {
+            tmpBoard[i / 30][i % 30] = 0;
         }
         bot.setBoard(tmpBoard);
 
@@ -85,6 +104,8 @@ public class PlayWithBot extends AppCompatActivity  {
                                 //check won?
                                 if (drawView.isFinish()) {
                                     //win
+//                                    showAlertDialog();
+                                    mHandler.obtainMessage(WIN).sendToTarget();
                                     Toast.makeText(PlayWithBot.this, "win", Toast.LENGTH_SHORT).show();
 
                                 } else {
@@ -105,7 +126,9 @@ public class PlayWithBot extends AppCompatActivity  {
                                                 }
                                             });
                                             if (drawView.isFinish()) { // neu khong danh duoc ma game da ket thuc co nghia la thua
+//                                                showAlertDialog();
                                                 //lose
+                                                mHandler.obtainMessage(LOSE).sendToTarget();
                                                 drawView.post(new Runnable() {
                                                     @Override
                                                     public void run() {
@@ -156,7 +179,6 @@ public class PlayWithBot extends AppCompatActivity  {
                 }
 
 
-
                 return false;
             }
         });
@@ -171,19 +193,8 @@ public class PlayWithBot extends AppCompatActivity  {
         });
 
 
-
         txtCountDownTimer = findViewById(R.id.countTimer);
-        CountDownTimer timer = new CountDownTimer(30000, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                txtCountDownTimer.setText("" + millisUntilFinished / 1000);
-            }
-
-            @Override
-            public void onFinish() {
-
-            }
-        }.start();
+        txtCountDownTimer.setVisibility(View.INVISIBLE);
 
 
     }
@@ -207,13 +218,82 @@ public class PlayWithBot extends AppCompatActivity  {
         public boolean onScale(ScaleGestureDetector detector) {
             pinch = true;
             mScaleFactor = detector.getScaleFactor();
-            space = Math.round(mScaleFactor * space) ;
-            padding = Math.round(mScaleFactor* padding);
+            space = Math.round(mScaleFactor * space);
+            padding = Math.round(mScaleFactor * padding);
 
             space = space > 200 ? 200 : space;
-            space = space < 80 ? 80 :space;
-            drawView.setSpace(space,padding);
+            space = space < 80 ? 80 : space;
+            drawView.setSpace(space, padding);
             return true;
         }
     }
+
+    private void showAlertDialog(String title, String message) {
+//        final Context context = PlayWithBot.this;
+////
+////        final Dialog dialog = new Dialog(context);
+////        dialog.setContentView(R.layout.alert_dialog);
+////        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+////        TextView txtTitle = dialog.findViewById(R.id.dialogTitle);
+////        txtTitle.setText(title);
+////        TextView txtMessage = dialog.findViewById(R.id.dialogMessage);
+////        txtMessage.setText(message);
+////        dialog.setCancelable(false);
+////        Button btnPositive = dialog.findViewById(R.id.btnPositive);
+////        btnPositive.setText("Chơi tiếp");
+////        btnPositive.setOnClickListener(new View.OnClickListener() {
+////            @Override
+////            public void onClick(View v) {
+////                drawView.init();
+////                drawView.invalidate();
+////                dialog.dismiss();
+////            }
+////        });
+////
+////        Button btnNegative = dialog.findViewById(R.id.btnNegative);
+////        btnNegative.setText("Thoát");
+////        btnNegative.setOnClickListener(new View.OnClickListener() {
+////            @Override
+////            public void onClick(View v) {
+////                ((Activity) context).finish();
+////            }
+////        });
+////
+////        dialog.show();
+
+        final ConfirmDialog dialog = new ConfirmDialog(PlayWithBot.this);
+        dialog.setTitle(title);
+        dialog.setMessage(message);
+        dialog.setButton(ConfirmDialog.PositiveButton, "Chơi tiếp", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawView.init();
+                drawView.invalidate();
+                dialog.dismiss();
+            }
+        });
+
+        dialog.setButton(ConfirmDialog.NegativeButton, "Thoát", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PlayWithBot.this.finish();
+            }
+        });
+
+        dialog.show();
+    }
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case WIN:
+                    showAlertDialog("Thông báo", "Bạn đã chiến thắng");
+                    break;
+                case LOSE:
+                    showAlertDialog("Thông báo", "Bạn đã thua");
+                    break;
+            }
+        }
+    };
 }

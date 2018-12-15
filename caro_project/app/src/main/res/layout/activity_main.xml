@@ -19,6 +19,13 @@
             android:layout_gravity="right"
             android:background="@drawable/setting_main" />
 
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="300dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_horizontal"
+            app:srcCompat="@drawable/logo_big" />
+
         <Button
             android:id="@+id/btn_playWithFriend"
             android:layout_width="250dp"
@@ -29,7 +36,9 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Button"
             android:background="@drawable/button_play_mainactivity"
             android:shadowRadius="1"
-            android:text="Chơi với bạn"
+            android:text="Chơi với người"
+            android:fontFamily="@font/varelaround_regular"
+            android:textStyle="bold"
             android:textColor="@color/button_play_text_color"
             />
         <Button
@@ -43,6 +52,24 @@
             android:background="@drawable/button_play_mainactivity"
             android:shadowRadius="1"
             android:text="Chơi với máy"
+            android:fontFamily="@font/varelaround_regular"
+            android:textStyle="bold"
+            android:textColor="@color/button_play_text_color"
+            />
+
+        <Button
+            android:id="@+id/btnOptions"
+            android:layout_width="250dp"
+            android:layout_height="70dp"
+            android:textSize="20sp"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:background="@drawable/button_play_mainactivity"
+            android:shadowRadius="1"
+            android:text="Tùy Chỉnh"
+            android:fontFamily="@font/varelaround_regular"
+            android:textStyle="bold"
             android:textColor="@color/button_play_text_color"
             />
 
@@ -55,6 +82,8 @@
             android:layout_marginTop="30dp"
             android:background="@drawable/button_play_mainactivity"
             android:textColor="@color/button_play_text_color"
+            android:fontFamily="@font/varelaround_regular"
+            android:textStyle="bold"
             android:text="Thoát" />
 
         </LinearLayout>

@@ -1,11 +1,15 @@
 package com.android16_team.caro_project;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -21,15 +25,22 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 public class PlayWithFriend extends AppCompatActivity {
 
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothService mChatService;
     private String mConnectedDeviceName;
+
+    private static final byte DEFAULT = 0;
+    private static final byte USER_AGREE = 1;
+    private static final byte RIVAL_AGREE = 2;
 
     private static final int REQUEST_CONNECT_DEVICE_SECURE = 1;
     private static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
@@ -45,15 +56,21 @@ public class PlayWithFriend extends AppCompatActivity {
     private boolean toggleMode = true;
     private Integer noWaitingMsg = 0;
 
-    private ProgressDialog progressDialog;
-
     protected boolean isRunning = false;
-    protected byte isContinue = 0;
+    protected byte isContinue = DEFAULT;
     protected CountDownTimer timer;
 
     private boolean turn = false;
 
     private Toolbar myToolbar;
+
+    private ConfirmDialog alertDialog;
+    private ConfirmDialog confirmDialog;
+    private ConfirmDialog connectDialog;
+
+    private InfoPlay infoPlay;
+    private int noTurns = 0;
+    private int noStones = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,6 +78,10 @@ public class PlayWithFriend extends AppCompatActivity {
         setContentView(R.layout.caro_table);
         myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
+        setTitle("CHƠI VỚI NGƯỜI");
+
+        Intent intent = getIntent();
+        infoPlay = (InfoPlay)intent.getSerializableExtra("InfoPlay");
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -82,9 +103,11 @@ public class PlayWithFriend extends AppCompatActivity {
         drawView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String msg = drawView.check(cx, cy);
-                if (msg != null) {
-                    sendMessage(MessageCaro.POSITION, msg);
+                if (turn) {
+                    String msg = drawView.check(cx, cy);
+                    if (msg != null) {
+                        sendMessage(MessageCaro.POSITION, msg);
+                    }
                 }
             }
         });
@@ -114,7 +137,7 @@ public class PlayWithFriend extends AppCompatActivity {
                     sendMessage(MessageCaro.TIMEOUT, "");
                 }
             }
-        }.start();
+        };
 
         txtWaitingMsg = findViewById(R.id.txtWaitingMsg);
         txtWaitingMsg.setVisibility(View.INVISIBLE);
@@ -167,6 +190,7 @@ public class PlayWithFriend extends AppCompatActivity {
                     switch (msg.arg1) {
                         case BluetoothService.STATE_CONNECTED:
                             setStatus(getString(R.string.title_connected_to) + mConnectedDeviceName);
+                            connectDialog.dismiss();
 //                            mConversationArrayAdapter.clear();
                             break;
                         case BluetoothService.STATE_CONNECTING:
@@ -191,12 +215,16 @@ public class PlayWithFriend extends AppCompatActivity {
                             int i = Integer.parseInt(pos[0]);
                             int j = Integer.parseInt(pos[1]);
                             drawView.setCheckedStates(new Node(j, i));
+                            drawView.invalidate();
                             timer.cancel();
                             timer.start();
                             turn = !turn;
+
                             if (drawView.isFinish()) {
                                 turn = true;
-                                showConfirmDialog();
+                                showConfirmDialog("Bạn đã thắng " + mConnectedDeviceName);
+                            } else {
+                                changeTurn();
                             }
                             break;
                         }
@@ -205,18 +233,16 @@ public class PlayWithFriend extends AppCompatActivity {
                             if (writeMessage.equals("yes")) {
                                 //Nếu mình chọn yes thì đợi xem đối phương có chấp nhận hay không?
                                 //Kiểm tra isContinue xem đối phương có chấp nhận trước đó chưa?
-                                if (isContinue == 1) {
+                                if (isContinue == RIVAL_AGREE) {
                                     drawView.init();
-                                    isContinue = 0;
+                                    drawView.invalidate();
+                                    isContinue = DEFAULT;
+                                    confirmDialog.dismiss();
                                 } else {
-                                    //Tạo ra dialog bảo người dùng chờ đối thủ chấp nhận
-                                    //Gán biến isRunning = false để báo rằng mình đã chấp nhận đánh tiếp
-                                    //Nếu thằng kia thoát đột ngột thì sao?
-                                    progressDialog = new ProgressDialog(PlayWithFriend.this);
-                                    progressDialog.setMessage("Chờ đối thủ...");
-                                    progressDialog.setCancelable(false);
-                                    progressDialog.show();
-                                    isRunning = false;
+                                    //Nếu đối phương chưa đồng ý
+                                    //Tắt dialog confirm hiện tại và thông báo cho người dùng chờ
+                                    confirmDialog.dismiss();
+                                    showAlertDialog("Chờ đối thủ ...");
                                 }
                             }
                             break;
@@ -224,7 +250,6 @@ public class PlayWithFriend extends AppCompatActivity {
                         case MessageCaro.TIMEOUT: {
                             //Nhớ sửa nha cu
                             Log.e("<<WRITE-TIMEOUT>>", writeMessage);
-                            showConfirmDialog();
                         }
                         break;
                     }
@@ -243,12 +268,15 @@ public class PlayWithFriend extends AppCompatActivity {
                             int i = Integer.parseInt(pos[0]);
                             int j = Integer.parseInt(pos[1]);
                             drawView.setCheckedStates(new Node(j, i));
+                            drawView.invalidate();
                             timer.cancel();
                             timer.start();
                             turn = !turn;
                             if (drawView.isFinish()) {
-                                showConfirmDialog();
+                                showConfirmDialog("Bạn đã thua " + mConnectedDeviceName);
                                 turn = false;
+                            } else {
+                                changeTurn();
                             }
                             break;
                         }
@@ -262,34 +290,36 @@ public class PlayWithFriend extends AppCompatActivity {
                         case MessageCaro.CONTINUE: {
                             Log.e("<<READ-CONTINUE>>", readMessage);
                             if (readMessage.equals("yes")) {
-                                //Nếu người kia đồng ý mà mình chưa đồng ý thì
-                                //Nếu isRunning hiện tại là true tức là hiện tại người dùng chưa chấp nhận
-                                //isContinue hiện tại sẽ được gán là = 1 đánh dấu là đối thử chấp nhận tiếp tục đánh
-                                //Nếu người dùng đã chấp nhận tức là isRunning = false
-                                //thì sẽ init để tiếp tục đánh
-                                //Nhớ reset isContinue lại là 0
-                                //Dismiss dialog chờ đối thủ
-                                if (isRunning) {
-                                    isContinue = 1;
-                                } else {
+                                //Nếu đối thủ đồng ý tiếp tục chơi tiếp
+                                //Ghi nhớ đối thủ đã đồng ý
+                                if(isContinue == USER_AGREE) {
                                     drawView.init();
-                                    isContinue = 0;
-                                    progressDialog.dismiss();
-                                }
+                                    drawView.invalidate();
+                                    isContinue = DEFAULT;
+                                    alertDialog.dismiss();
+                                } else
+                                    isContinue = RIVAL_AGREE;
                             } else {
-                                //Nếu đối thủ không đồng ý thì sẽ ngưng đếm thời gian isRunning = false
-                                //Dismiss confirm
-                                //Hiển thị dialog thông báo cho người dùng rằng đối phương đã từ chối
-                                isRunning = false;
-                                progressDialog.dismiss();
-                                showAlertDialog();
-//                                PlayWithFriend.this.finish();
+                                //Nếu đối thủ không đồng ý chơi tiếp
+                                //Kiểm tra xem người dùng đã đồng ý hay chưa
+                                if(isContinue == USER_AGREE) {
+                                    //Tắt dialog thông báo chờ đối thủ
+                                    alertDialog.dismiss();
+                                    //Thông báo cho người dùng người chơi kia đã không đồng ý
+                                    showAlertDialog("Đối thủ đã rời đi");
+                                } else if(isContinue == DEFAULT) {
+                                    //Người dùng chưa quyết định
+                                    //Tắt Confirm dialog hiện tại đi
+                                    confirmDialog.dismiss();
+                                    //Thông báo cho người dùng người chơi kia đã không đồng ý
+                                    showAlertDialog("Đối thủ đã rời đi");
+                                }
                             }
                             break;
                         }
                         case MessageCaro.TIMEOUT: {
                             Log.e("<<READ-TIMEOUT>>", readMessage);
-                            showConfirmDialog();
+//                            showConfirmDialog();
                             break;
                         }
                     }
@@ -334,6 +364,31 @@ public class PlayWithFriend extends AppCompatActivity {
             if (mChatService.getState() == BluetoothService.STATE_NONE) {
                 // Start the Bluetooth chat services
                 mChatService.start();
+
+                //Tạo dialog thông báo người dùng kết nối BT
+                connectDialog = new ConfirmDialog(PlayWithFriend.this);
+                connectDialog.setTitle("Thông báo");
+                connectDialog.setMessage("Bạn hãy kết nối với một người chơi khác");
+                connectDialog.setCancelable(false);
+                connectDialog.setButton(ConfirmDialog.PositiveButton, "Kết nối", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent serverIntent = new Intent(PlayWithFriend.this, DeviceListActivity.class);
+                        startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE);
+                        turn = true;
+                        connectDialog.dismiss();
+                    }
+                });
+
+                connectDialog.setButton(ConfirmDialog.NegativeButton, "Thoát", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        PlayWithFriend.this.finish();
+                    }
+                });
+
+                connectDialog.show();
+
             }
             mChatService.setmHandler(mHandler);
         } else {
@@ -420,8 +475,7 @@ public class PlayWithFriend extends AppCompatActivity {
                 return true;
             }
             case R.id.toggle_mode: {
-                toggleMode = !toggleMode;
-                PlayWithFriend.this.supportInvalidateOptionsMenu();
+
                 return true;
             }
         }
@@ -437,72 +491,58 @@ public class PlayWithFriend extends AppCompatActivity {
         }
     }
 
-    private void showAlertDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Caro");
-        builder.setIcon(R.drawable.icon_caro);
-        builder.setMessage("Đối thủ của bạn đã từ chối");
-        builder.setCancelable(false);
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+    private void showAlertDialog(String message) {
+        alertDialog = new ConfirmDialog(PlayWithFriend.this);
+        alertDialog.setTitle("Thông báo");
+        alertDialog.setMessage(message);
+        alertDialog.setCancelable(false);
+        alertDialog.setButton(ConfirmDialog.NegativeButton, "Thoát", new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(View v) {
+                sendMessage(MessageCaro.CONTINUE, "no");
                 PlayWithFriend.this.finish();
             }
         });
-        AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
 
-    private void showConfirmDialog() {
-        progressDialog = new ProgressDialog(PlayWithFriend.this);
-        progressDialog.setMessage("Bạn có muốn chơi tiếp không?");
-        progressDialog.setTitle("Progress Dialog");
-        progressDialog.setIcon(R.drawable.icon_caro);
-        progressDialog.setCancelable(false);
-        isRunning = true;
-        progressDialog.setButton(ProgressDialog.BUTTON_POSITIVE, "Có", new DialogInterface.OnClickListener() {
+    private void showConfirmDialog(String message) {
+        confirmDialog = new ConfirmDialog(PlayWithFriend.this);
+        confirmDialog.setTitle("Thông báo");
+        confirmDialog.setMessage(message);
+        confirmDialog.setCancelable(false);
+        confirmDialog.setButton(ConfirmDialog.PositiveButton, "Chơi tiếp", new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                isRunning = false;
-                progressDialog.dismiss();
+            public void onClick(View v) {
                 sendMessage(MessageCaro.CONTINUE, "yes");
             }
         });
 
-        progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "Không", new DialogInterface.OnClickListener() {
+        confirmDialog.setButton(ConfirmDialog.NegativeButton, "Thoát", new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                isRunning = false;
-                progressDialog.dismiss();
+            public void onClick(View v) {
                 sendMessage(MessageCaro.CONTINUE, "no");
+                PlayWithFriend.this.finish();
             }
         });
-        progressDialog.show();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int max = 10;
-                int cur = 0;
-                while (cur < max && isRunning) {
-                    try {
-                        Thread.sleep(1000);
-                        cur++;
-                        if (cur == max) {
-                            isRunning = false;
-                            progressDialog.dismiss();
-                            sendMessage(MessageCaro.CONTINUE, "no");
-                            PlayWithFriend.this.finish();
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
+
+        confirmDialog.show();
     }
 
     private void setStatus(String status) {
         myToolbar.setSubtitle(status);
+    }
+
+    private void changeTurn() {
+        if(infoPlay.isHaveSwapTurn()) {
+            noTurns++;
+            if(noTurns == infoPlay.getNoTurns()) {
+                drawView.changeState();
+                noTurns = 0;
+                Toast.makeText(PlayWithFriend.this, "Thay đổi cờ", Toast.LENGTH_SHORT).show();
+                PlayWithFriend.this.supportInvalidateOptionsMenu();
+            }
+        }
     }
 }
 

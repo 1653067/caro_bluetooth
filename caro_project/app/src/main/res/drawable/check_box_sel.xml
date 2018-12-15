@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/radius_button_play"></corners>
+            <padding android:bottom="2dp"
+                android:right="2dp"
+                android:left="2dp"
+                android:top="2dp"></padding>
+            <stroke android:color="#989898" android:width="2dp"></stroke>
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <padding android:bottom="5dp"
+                android:right="5dp"
+                android:left="5dp"
+                android:top="5dp"></padding>
+            <size android:width="20dp" android:height="20dp"></size>
+            <corners android:radius="@dimen/radius_button_play"></corners>
+            <solid android:color="#eeeeee"></solid>
+            <stroke android:color="#fff" android:width="2dp"></stroke>
+        </shape>
+    </item>
+    <item android:drawable="@drawable/ic_correct_symbol" android:width="20dp" android:height="20dp"></item>
+</layer-list>

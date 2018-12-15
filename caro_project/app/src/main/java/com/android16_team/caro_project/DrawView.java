@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -33,6 +34,9 @@ public class DrawView extends View {
     private boolean finish = false;
     private int dx = 0;
     private int dy = 0;
+
+    private int curX = -1;
+    private int curY = -1;
 
     public DrawView(Context context) {
         super(context);
@@ -80,6 +84,17 @@ public class DrawView extends View {
             canvas.drawLine(0, i * space +dy , width, i * space +dy , paint);
         }
 
+        if(curX != -1 && curY != -1) {
+            paint.setColor(Color.argb(25, 0, 0, 0));
+            paint.setStyle(Paint.Style.FILL);
+            canvas.drawRect(new Rect(
+                    curX * space + dx,
+                    curY * space + dy,
+                    curX * space + space + dx,
+                    curY * space + space + dy), paint);
+            paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        }
+
         for (int i = 0; i < nRows; i++) {
             for (int j = 0; j < nCols; j++) {
                 if (checkedStates[i][j] != CheckedState.NONE) {
@@ -88,6 +103,16 @@ public class DrawView extends View {
                 }
             }
         }
+
+        int stonePadding = 10;
+
+//        Drawable d = getResources().getDrawable(R.drawable.ic_stone, null);
+//        //as getDrawable(int drawable) is deprecated
+//        d.setBounds(8 * space + dx + stonePadding ,
+//                7 * space + dy + stonePadding,
+//                8*space + space + dx - stonePadding ,
+//                7*space + space  + dy -stonePadding );
+//        d.draw(canvas);
     }
 
 
@@ -146,6 +171,8 @@ public class DrawView extends View {
             }
             curState = curState == CheckedState.O ? CheckedState.X : CheckedState.O;
             enabled = true;
+            curX = node.getX();
+            curY = node.getY();
         }
         // postInvalidate();
 
@@ -340,5 +367,9 @@ public class DrawView extends View {
         this.space = space;
         this.padding = padding;
         invalidate();
+    }
+
+    public void changeState() {
+        curState = curState == CheckedState.O ? CheckedState.X : CheckedState.O;
     }
 }

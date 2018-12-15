@@ -5,50 +5,73 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/title_paired_devices"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#666"
+        android:background="@drawable/title_alert_dialog"
         android:padding="10dp"
-        android:text="@string/title_paired_devices"
-        android:textColor="#fff"
-        android:visibility="gone"
-        android:backgroundTint="@color/colorPrimary"
-        />
+        android:text="BLUETOOTH"
+        android:textStyle="bold"
+        android:textColor="#fff" />
 
-    <ListView
-        android:id="@+id/paired_devices"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:stackFromBottom="true"
-        />
+        android:layout_height="match_parent"
+        android:minWidth="300dp"
+        android:background="@drawable/content_dialog"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/title_new_devices"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="5dp"
-        android:text="@string/title_other_devices"
-        android:textColor="#fff"
-        android:visibility="gone"
-        android:backgroundTint="@color/colorPrimaryDark"
-        />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="1">
 
-    <ListView
-        android:id="@+id/new_devices"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="2"
-        android:stackFromBottom="true"
-        />
+            <TextView
+                android:id="@+id/title_paired_devices"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="5dp"
+                android:text="@string/title_paired_devices"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                android:visibility="gone" />
 
-    <Button
-        android:id="@+id/button_scan"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button_scan"
-        android:backgroundTint="@color/colorPrimaryDark"
-        android:textColor="#fff"
-        />
+            <ListView
+                android:id="@+id/paired_devices"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:stackFromBottom="true" />
+
+            <TextView
+                android:id="@+id/title_new_devices"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="@string/title_other_devices"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <ListView
+                android:id="@+id/new_devices"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:stackFromBottom="true" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/button_scan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/button_dialog"
+            android:textColor="@color/button_play_text_color"
+            android:layout_marginVertical="10dp"
+            android:textStyle="bold"
+            android:text="@string/button_scan" />
+    </LinearLayout>
+
 </LinearLayout>

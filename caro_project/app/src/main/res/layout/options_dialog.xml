@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minWidth="300dp"
+    android:orientation="vertical"
+    android:layout_margin="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/title_alert_dialog"
+        android:padding="16dp"
+        android:text="TÙY CHỈNH"
+        android:textColor="#fff"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/content_dialog"
+        android:padding="16dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TÊN"
+                android:textStyle="bold"
+                android:layout_marginRight="10dp"/>
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:hint="Nhập tên của bạn"
+                android:layout_weight="1"
+                android:paddingVertical="10dp"
+                android:paddingHorizontal="16dp"
+                android:background="@drawable/edit_text_style"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ĐÁ"
+                android:textStyle="bold"
+                android:layout_marginRight="10dp"/>
+
+            <CheckBox
+                android:id="@+id/cbStone"
+                android:layout_width="30dp"
+                android:layout_height="35dp"
+                android:layout_weight="1"
+                android:button="@drawable/check_box_style"></CheckBox>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SỐ LƯỢNG ĐÁ"
+                android:textStyle="bold"
+                android:layout_marginRight="10dp"/>
+
+            <Button
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:text="-"
+                android:textStyle="bold"
+                android:textColor="@color/button_play_text_color"
+                android:background="@drawable/button_round_style"/>
+
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="3"
+                android:inputType="number"
+                android:paddingVertical="10dp"
+                android:paddingHorizontal="16dp"
+                android:layout_marginHorizontal="5dp"
+                android:text="0"
+                android:background="@drawable/edit_text_style"
+                android:textAlignment="center"/>
+
+            <Button
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:text="+"
+                android:textStyle="bold"
+                android:textColor="@color/button_play_text_color"
+                android:background="@drawable/button_round_style"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ĐỔI CỜ"
+                android:textStyle="bold"
+                android:layout_marginRight="10dp"/>
+
+            <CheckBox
+                android:layout_width="30dp"
+                android:layout_height="35dp"
+                android:layout_weight="1"
+                android:button="@drawable/check_box_style"></CheckBox>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SỐ LƯỢT"
+                android:textStyle="bold"
+                android:layout_marginRight="10dp"/>
+
+            <Button
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:text="-"
+                android:textStyle="bold"
+                android:textColor="@color/button_play_text_color"
+                android:background="@drawable/button_round_style"/>
+
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="3"
+                android:inputType="number"
+                android:paddingVertical="10dp"
+                android:paddingHorizontal="16dp"
+                android:layout_marginHorizontal="5dp"
+                android:text="0"
+                android:background="@drawable/edit_text_style"
+                android:textAlignment="center"/>
+
+            <Button
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:text="+"
+                android:textStyle="bold"
+                android:textColor="@color/button_play_text_color"
+                android:background="@drawable/button_round_style"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+            <Button
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_marginRight="16dp"
+                android:background="@drawable/button_dialog"
+                android:text="Áp dụng"
+                android:textColor="@color/button_play_text_color"
+                android:textStyle="bold" />
+            <Button
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:background="@drawable/button_dialog"
+                android:text="Thoát"
+                android:textColor="@color/button_play_text_color"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -2,7 +2,7 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">
-            <size android:height="@dimen/height_button_play" android:width="@dimen/width_button_play"></size>
+            <size android:height="50dp" android:width="100dp"></size>
             <solid android:color="@color/colorButtonBlueFirst"/>
             <padding android:bottom="@dimen/padding_button_play"
                 android:left="@dimen/padding_button_play"
@@ -14,8 +14,8 @@
     </item>
     <item android:gravity="bottom">
         <shape android:shape="rectangle">
-            <size android:width="@dimen/width_button_play_second"
-                android:height="@dimen/height_button_play_second"></size>
+            <size android:width="100dp"
+                android:height="20dp"></size>
             <solid android:color="@color/colorButtonBlueSecond"></solid>
             <corners android:bottomLeftRadius="@dimen/radius_button_play"
                 android:bottomRightRadius="@dimen/radius_button_play"></corners>

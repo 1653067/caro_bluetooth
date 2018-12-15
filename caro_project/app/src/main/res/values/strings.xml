@@ -12,9 +12,9 @@
     <string name="send">Send</string>
     <string name="not_connected">You are not connected to a device</string>
     <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>
-    <string name="title_connecting">connecting...</string>
-    <string name="title_connected_to">connected to </string>
-    <string name="title_not_connected">not connected</string>
+    <string name="title_connecting">đang kết nối</string>
+    <string name="title_connected_to">đã kết nối</string>
+    <string name="title_not_connected">không có kết nối</string>
 
     <!-- Options Menu -->
     <string name="secure_connect">Connect a device - Secure</string>

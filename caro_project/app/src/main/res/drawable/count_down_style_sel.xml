@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <solid android:color="@color/colorButtonYellowFirst"></solid>
+            <size android:width="50dp" android:height="50dp"></size>
+            <corners android:radius="25dp" />
+            <stroke
+                android:width="@dimen/stoke_button_play"
+                android:color="#a78500"></stroke>
+            <padding android:bottom="@dimen/padding_button_play"
+                android:left="@dimen/padding_button_play"
+                android:right="@dimen/padding_button_play"
+                android:top="@dimen/padding_button_play"></padding>
+        </shape>
+    </item>
+    <item android:gravity="bottom">
+        <shape>
+            <solid android:color="@color/colorButtonYellowSecond"></solid>
+            <size android:width="50dp" android:height="20dp"></size>
+            <corners android:bottomRightRadius="25dp"
+                android:bottomLeftRadius="25dp"></corners>
+        </shape>
+    </item>
+</layer-list>

@@ -1,5 +1,6 @@
 package com.android16_team.caro_project;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,8 +17,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button playWithBot;
     Button playWithFriend;
     Button exit;
+    Button btnOptions;
     ImageButton setUp;
     Context context = this;
+    OptionDialog optionDialog;
+    InfoPlay infoPlay;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,11 +31,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playWithFriend = findViewById(R.id.btn_playWithFriend);
         exit = findViewById(R.id.btn_exit_main);
         setUp = findViewById(R.id.btn_setting_main);
+        btnOptions = findViewById(R.id.btnOptions);
 
         playWithBot.setOnClickListener(this);
         playWithFriend.setOnClickListener(this);
         exit.setOnClickListener(this);
         setUp.setOnClickListener(this);
+        btnOptions.setOnClickListener(this);
+
+        infoPlay = new InfoPlay();
+        optionDialog = new OptionDialog(context, infoPlay);
 
     }
 
@@ -48,15 +58,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_playWithBot:
                     Intent intentBot = new Intent(MainActivity.this, PlayWithBot.class);
                     startActivity(intentBot);
+
                 break;
             case R.id.btn_playWithFriend:
-                startActivity(new Intent(MainActivity.this, PlayWithFriend.class));
+                Intent intentFriends = new Intent(MainActivity.this, PlayWithFriend.class);
+                intentFriends.putExtra("InfoPlay", infoPlay);
+                startActivity(intentFriends);
                 break;
             case R.id.btn_exit_main:
                 finish();
                 break;
             case R.id.btn_setting_main:
                 Toast.makeText(this,"set up",Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.btnOptions:
+                optionDialog.show();
                 break;
         }
 

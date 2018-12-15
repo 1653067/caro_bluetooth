@@ -3,8 +3,8 @@
     <item>
         <shape android:shape="rectangle">
             <size
-                android:width="@dimen/width_button_play"
-                android:height="@dimen/height_button_play"></size>
+                android:width="100dp"
+                android:height="50dp"></size>
             <solid android:color="@color/colorButtonYellowFirst" />
             <padding
                 android:bottom="@dimen/padding_button_play"
@@ -20,13 +20,13 @@
     <item android:gravity="bottom">
         <shape android:shape="rectangle">
             <size
-                android:width="@dimen/width_button_play_second"
-                android:height="@dimen/height_button_play_second"></size>
+                android:width="100dp"
+                android:height="20dp"></size>
             <solid android:color="@color/colorButtonYellowSecond"></solid>
             <corners
                 android:bottomLeftRadius="@dimen/radius_button_play"
                 android:bottomRightRadius="@dimen/radius_button_play"></corners>
+
         </shape>
     </item>
-
 </layer-list>

@@ -11,6 +11,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/colorPrimary"
         android:elevation="4dp"
+        android:backgroundTint="@color/colorButtonBlueSecond"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:collapseIcon="@drawable/ic_collapse_icon_24dp"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
@@ -44,9 +45,10 @@
         <!--app:srcCompat="@drawable/speech_bubble" />-->
 
     <ImageButton
+        android:elevation="3dp"
         android:id="@+id/btnMessage"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_margin="16dp"
         android:padding="15dp"
         android:background="@drawable/count_down_style"
@@ -55,22 +57,23 @@
         android:src="@drawable/ic_message_white_24dp"
         />
 
-    <TextView
+    <Button
+        android:elevation="3dp"
         android:id="@+id/countTimer"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:background="@drawable/count_down_style"
         android:textAlignment="center"
         android:gravity="center"
-        android:textColor="#fff"
+        android:textColor="@color/button_play_text_color"
         android:layout_margin="16dp"
         app:layout_anchorGravity="bottom|left|end"
         app:layout_anchor="@id/caro_pane"
         android:textStyle="bold"
-        android:clickable="false"
         android:text="0" />
 
         <TextView
+            android:elevation="4dp"
             android:id="@+id/txtWaitingMsg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

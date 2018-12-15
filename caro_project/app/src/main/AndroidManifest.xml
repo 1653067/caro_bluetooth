@@ -26,7 +26,7 @@
             android:name=".DeviceListActivity"
             android:configChanges="orientation|keyboardHidden"
             android:label="Select device"
-            android:theme="@style/Theme.AppCompat.Light.Dialog"/>
+            android:theme="@style/DialogTheme"/>
     </application>
 
 </manifest>
