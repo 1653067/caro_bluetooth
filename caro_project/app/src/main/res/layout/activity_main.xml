@@ -9,7 +9,7 @@
         android:id="@+id/index_activity"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/action_bar_bg"
+        android:background="@drawable/noel_small"
         android:orientation="vertical">
 
         <ImageButton
