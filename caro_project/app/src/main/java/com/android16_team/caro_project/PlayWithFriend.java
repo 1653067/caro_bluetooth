@@ -78,10 +78,11 @@ public class PlayWithFriend extends AppCompatActivity {
         setContentView(R.layout.caro_table);
         myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
-        setTitle("CHƠI VỚI NGƯỜI");
 
-        Intent intent = getIntent();
-        infoPlay = (InfoPlay)intent.getSerializableExtra("InfoPlay");
+        infoPlay = InfoPlay.getInstance();
+
+        setTitle(infoPlay.getName());
+
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -234,6 +235,9 @@ public class PlayWithFriend extends AppCompatActivity {
                                 //Nếu mình chọn yes thì đợi xem đối phương có chấp nhận hay không?
                                 //Kiểm tra isContinue xem đối phương có chấp nhận trước đó chưa?
                                 if (isContinue == RIVAL_AGREE) {
+                                    //Nếu đối phương đồng ý
+                                    //Thì reset board
+                                    //Tắt confirm dialog
                                     drawView.init();
                                     drawView.invalidate();
                                     isContinue = DEFAULT;
@@ -242,6 +246,7 @@ public class PlayWithFriend extends AppCompatActivity {
                                     //Nếu đối phương chưa đồng ý
                                     //Tắt dialog confirm hiện tại và thông báo cho người dùng chờ
                                     confirmDialog.dismiss();
+                                    isContinue = USER_AGREE;
                                     showAlertDialog("Chờ đối thủ ...");
                                 }
                             }

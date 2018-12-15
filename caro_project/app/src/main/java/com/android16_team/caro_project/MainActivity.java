@@ -1,6 +1,8 @@
 package com.android16_team.caro_project;
 
 import android.app.Dialog;
+import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +14,19 @@ import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     Button playWithBot;
@@ -22,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Context context = this;
     OptionDialog optionDialog;
     InfoPlay infoPlay;
+    private Intent musicBackground;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +55,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setUp.setOnClickListener(this);
         btnOptions.setOnClickListener(this);
 
-        infoPlay = new InfoPlay();
+        infoPlay = InfoPlay.getInstance();
+        readData();
         optionDialog = new OptionDialog(context, infoPlay);
+
 
     }
 
@@ -62,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btn_playWithFriend:
                 Intent intentFriends = new Intent(MainActivity.this, PlayWithFriend.class);
-                intentFriends.putExtra("InfoPlay", infoPlay);
                 startActivity(intentFriends);
                 break;
             case R.id.btn_exit_main:
@@ -93,5 +110,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        }
 //    }
 
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        saveData();
+        stopService(new Intent(this, MusicService.class));
+    }
+
+    private void saveData() {
+        FileOutputStream os = null;
+        try {
+            os = openFileOutput("InfoPlay", MODE_PRIVATE);
+            os.write(infoPlay.toString().getBytes());
+            os.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void readData() {
+        FileInputStream in = null;
+        try {
+            in = openFileInput("InfoPlay");
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
+            infoPlay.setInfoPlay(bufferedReader.readLine());
+            bufferedReader.close();
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void playMusic(boolean play) {
+        if(play) {
+            startService(new Intent(this, MusicService.class));
+        } else {
+            stopService(new Intent(this, MusicService.class));
+        }
+    }
 
 }

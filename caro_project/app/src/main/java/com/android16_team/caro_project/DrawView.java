@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -38,19 +39,24 @@ public class DrawView extends View {
     private int curX = -1;
     private int curY = -1;
 
+    private MediaPlayer mediaPlayer;
+
     public DrawView(Context context) {
         super(context);
         init();
+        mediaPlayer = MediaPlayer.create(context, R.raw.click);
     }
 
     public DrawView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
+        mediaPlayer = MediaPlayer.create(context, R.raw.click);
     }
 
     public DrawView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
+        mediaPlayer = MediaPlayer.create(context, R.raw.click);
     }
 
     public void init() {
@@ -76,15 +82,15 @@ public class DrawView extends View {
         paint.setStrokeWidth(5);
         //vẽ dọc
         for (int i = 0; i < 30; i++) {
-            canvas.drawLine(i * space + dx  , 0, i * space + dx , height, paint);
+            canvas.drawLine(i * space + dx, 0, i * space + dx, height, paint);
         }
 
         //Vẽ ngang
         for (int i = 0; i < 30; i++) {
-            canvas.drawLine(0, i * space +dy , width, i * space +dy , paint);
+            canvas.drawLine(0, i * space + dy, width, i * space + dy, paint);
         }
 
-        if(curX != -1 && curY != -1) {
+        if (curX != -1 && curY != -1) {
             paint.setColor(Color.argb(25, 0, 0, 0));
             paint.setStyle(Paint.Style.FILL);
             canvas.drawRect(new Rect(
@@ -98,8 +104,8 @@ public class DrawView extends View {
         for (int i = 0; i < nRows; i++) {
             for (int j = 0; j < nCols; j++) {
                 if (checkedStates[i][j] != CheckedState.NONE) {
-                    Node node = new Node(i,j);
-                    paintCheckedState(canvas, checkedStates[i][j], node );
+                    Node node = new Node(i, j);
+                    paintCheckedState(canvas, checkedStates[i][j], node);
                 }
             }
         }
@@ -116,17 +122,16 @@ public class DrawView extends View {
     }
 
 
-
     // paint icon at position node with checkedState
     private void paintCheckedState(Canvas canvas, int checkedState, Node node) {
 
         if (checkedState == CheckedState.O) {
             Drawable d = getResources().getDrawable(R.drawable.o_red, null);
             //as getDrawable(int drawable) is deprecated
-            d.setBounds(node.getY() * space + dx ,
+            d.setBounds(node.getY() * space + dx,
                     node.getX() * space + dy,
-                    node.getY()*space + space + dx ,
-                    node.getX()*space + space  + dy );
+                    node.getY() * space + space + dx,
+                    node.getX() * space + space + dy);
             d.draw(canvas);
 
 //            paint.setColor(Color.rgb(255, 0, 0));
@@ -136,16 +141,14 @@ public class DrawView extends View {
 //            canvas.drawCircle(node.getY() * space + space / 2+dx, node.getX() * space + space / 2+dy, radius - 10, paint);
 
 
-
-
-        } else if(checkedState == CheckedState.X) {
+        } else if (checkedState == CheckedState.X) {
 
             Drawable d = getResources().getDrawable(R.drawable.x_blue, null);
             //as getDrawable(int drawable) is deprecated
-            d.setBounds(node.getY() * space + dx ,
+            d.setBounds(node.getY() * space + dx,
                     node.getX() * space + dy,
-                    node.getY()*space + space + dx ,
-                    node.getX()*space + space  + dy);
+                    node.getY() * space + space + dx,
+                    node.getX() * space + space + dy);
             d.draw(canvas);
 //            paint.setStrokeWidth(10);
 //            paint.setColor(Color.rgb(0, 0, 255));
@@ -165,8 +168,10 @@ public class DrawView extends View {
 
     public void setCheckedStates(Node node) {
         if (checkedStates[node.getY()][node.getX()] == CheckedState.NONE) {
+            if (InfoPlay.getInstance().isSound())
+                mediaPlayer.start();
             checkedStates[node.getY()][node.getX()] = curState;
-            if(checkWin(node)) {
+            if (checkWin(node)) {
                 this.finish = true;
             }
             curState = curState == CheckedState.O ? CheckedState.X : CheckedState.O;
@@ -179,17 +184,18 @@ public class DrawView extends View {
     }
 
     public String check(Float x, Float y) {
-        int i = (int) ((y+-1*dy) / space);
-        int j = (int) ((x+-1*dx) / space);
-        if(enabled && checkedStates[i][j] == CheckedState.NONE) {
+        int i = (int) ((y + -1 * dy) / space);
+        int j = (int) ((x + -1 * dx) / space);
+        if (enabled && checkedStates[i][j] == CheckedState.NONE) {
             return i + " " + j;
         }
         return null;
     }
-    public Node createNode(Float x , Float y){
-        int i = (int) ((y+-1*dy) / space);
-        int j = (int) ((x+-1*dx) / space);
-        Node node = new Node(j,i,0);
+
+    public Node createNode(Float x, Float y) {
+        int i = (int) ((y + -1 * dy) / space);
+        int j = (int) ((x + -1 * dx) / space);
+        Node node = new Node(j, i, 0);
         return node;
     }
 
@@ -197,12 +203,12 @@ public class DrawView extends View {
         this.enabled = enabled;
     }
 
-    public void clearNextStack (){
-        if(this.nextStack != null)
+    public void clearNextStack() {
+        if (this.nextStack != null)
             this.nextStack.clear();
     }
 
-    public boolean isFinish(){
+    public boolean isFinish() {
         return finish;
     }
 
@@ -357,7 +363,7 @@ public class DrawView extends View {
         return false;
     }
 
-    public void updatePosition(int x, int y){
+    public void updatePosition(int x, int y) {
         this.dx = x;
         this.dy = y;
         invalidate();
