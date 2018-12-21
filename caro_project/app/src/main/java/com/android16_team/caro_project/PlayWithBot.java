@@ -244,6 +244,7 @@ public class PlayWithBot extends AppCompatActivity {
         final ConfirmDialog dialog = new ConfirmDialog(PlayWithBot.this);
         dialog.setTitle(title);
         dialog.setMessage(message);
+        dialog.setCancelable(false);
         dialog.setButton(ConfirmDialog.PositiveButton, "Ván mới", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -321,8 +322,16 @@ public class PlayWithBot extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.undo:
-                drawView.undo();
-                drawView.undo();
+                if(!toggleMode){
+                    if (drawView.checkBotFirst()){
+                        drawView.undo();
+                        drawView.undo();
+                    }
+                }
+                else {
+                    drawView.undo();
+                    drawView.undo();
+                }
                 updatetmpboard();
                 return true;
             case R.id.redo:

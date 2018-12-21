@@ -87,6 +87,10 @@ public class DrawView extends View {
         paint.setColor(Color.rgb(191, 203, 209));
         paint.setStrokeWidth(5);
         //vẽ dọc
+        Drawable d = getResources().getDrawable(R.drawable.bg, null);
+        d.setBounds(0, 0, width, height);
+        d.draw(canvas);
+        canvas.drawARGB(125,255,255,255);
         for (int i = 0; i < 30; i++) {
             canvas.drawLine(i * space + dx, 0, i * space + dx, height, paint);
         }
@@ -422,7 +426,10 @@ public class DrawView extends View {
     public void createstack(){
         nextStack = new Stack<Node>();
         preStack = new Stack<Node>();
-
+    }
+    public boolean checkBotFirst(){
+        if (preStack.size() == 1) return false;
+        return true;
     }
 
 }
