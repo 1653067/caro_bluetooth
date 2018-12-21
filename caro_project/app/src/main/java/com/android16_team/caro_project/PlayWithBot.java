@@ -4,8 +4,13 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Picture;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PictureDrawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -14,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,6 +30,8 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Random;
 
 
 public class PlayWithBot extends AppCompatActivity {
@@ -73,8 +81,10 @@ public class PlayWithBot extends AppCompatActivity {
         bot.setBoard(tmpBoard);
 
 
+        //background toolbar
+//        DrawTool.drawToolBarBg(this, myToolbar);
 
-
+        DrawTool.drawCaroBg(this, findViewById(R.id.caro_pane));
 
         drawView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -94,8 +104,8 @@ public class PlayWithBot extends AppCompatActivity {
                     }
                     case MotionEvent.ACTION_POINTER_UP:
                     case MotionEvent.ACTION_UP: {
-                        if (flagmove || pinch!=0) {
-                            if(flagmove == false){
+                        if (flagmove || pinch != 0) {
+                            if (flagmove == false) {
                                 pinch--;
                             }
                             flagmove = false;
@@ -103,7 +113,7 @@ public class PlayWithBot extends AppCompatActivity {
                             cx = event.getX();
                             cy = event.getY();
                             String msg = drawView.check(cx, cy);
-                            if (((!toggleMode && drawView.getCurState() == CheckedState.X)||(toggleMode && drawView.getCurState() == CheckedState.O)) && !drawView.isFinish() && msg != null) {//neu vi tri hop le
+                            if (((!toggleMode && drawView.getCurState() == CheckedState.X) || (toggleMode && drawView.getCurState() == CheckedState.O)) && !drawView.isFinish() && msg != null) {//neu vi tri hop le
                                 Node node = drawView.createNode(cx, cy);
                                 drawView.setCheckedStates(node);
                                 drawView.invalidate();
@@ -115,8 +125,10 @@ public class PlayWithBot extends AppCompatActivity {
                                     Toast.makeText(PlayWithBot.this, "win", Toast.LENGTH_SHORT).show();
 
                                 } else {
-                                    if(toggleMode)tmpBoard[node.getY()][node.getX()] = drawView.getCheckedStates()[node.getY()][node.getX()];
-                                    else tmpBoard[node.getY()][node.getX()] = drawView.getCheckedStates()[node.getY()][node.getX()]==1?2:1;
+                                    if (toggleMode)
+                                        tmpBoard[node.getY()][node.getX()] = drawView.getCheckedStates()[node.getY()][node.getX()];
+                                    else
+                                        tmpBoard[node.getY()][node.getX()] = drawView.getCheckedStates()[node.getY()][node.getX()] == 1 ? 2 : 1;
                                     Thread run = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -124,10 +136,10 @@ public class PlayWithBot extends AppCompatActivity {
                                             // not win -> bot play
                                             Node nodes = bot.getBestNode();
                                             nodes.swapnode();
-                                            if(toggleMode)
-                                            tmpBoard[nodes.getY()][nodes.getX()] = drawView.getCurState();
+                                            if (toggleMode)
+                                                tmpBoard[nodes.getY()][nodes.getX()] = drawView.getCurState();
                                             else
-                                            tmpBoard[nodes.getY()][nodes.getX()] = drawView.getCurState()==1?2:1;
+                                                tmpBoard[nodes.getY()][nodes.getX()] = drawView.getCurState() == 1 ? 2 : 1;
                                             drawView.setCheckedStates(nodes);
                                             drawView.clearNextStack();
                                             drawView.post(new Runnable() {
@@ -249,14 +261,14 @@ public class PlayWithBot extends AppCompatActivity {
             public void onClick(View v) {
                 drawView.init();
                 dialog.dismiss();
-                if(changeturn){
-                    toggleMode = toggleMode?false:true;
+                if (changeturn) {
+                    toggleMode = toggleMode ? false : true;
                     invalidateOptionsMenu();
                 }
                 resetboard();
-                if(!toggleMode){
+                if (!toggleMode) {
                     //nguoi danh sau
-                    Node n = new Node(7,12);
+                    Node n = new Node(7, 12);
                     drawView.setCheckedStates(n);
 
                 }
@@ -292,16 +304,16 @@ public class PlayWithBot extends AppCompatActivity {
         }
     };
 
-    private void resetboard(){
-          flagmove = false;
-          pinch = 0;
-          space = 100;
-          padding = 10;
-          mPosX = 0;
-          mPosY = 0;
-          changeturn = false;
-        for(int i = 0 ; i < 30*30;i++){
-            tmpBoard[i/30][i%30] = 0;
+    private void resetboard() {
+        flagmove = false;
+        pinch = 0;
+        space = 100;
+        padding = 10;
+        mPosX = 0;
+        mPosY = 0;
+        changeturn = false;
+        for (int i = 0; i < 30 * 30; i++) {
+            tmpBoard[i / 30][i % 30] = 0;
         }
         drawView.clearNextStack();
         drawView.clearPreStack();
@@ -319,7 +331,7 @@ public class PlayWithBot extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.undo:
                 drawView.undo();
                 drawView.undo();
@@ -340,15 +352,17 @@ public class PlayWithBot extends AppCompatActivity {
         return false;
 
     }
-    private void updatetmpboard(){
-        for(int i = 0 ; i < 30*30;i++){
-            if(toggleMode)
-            this.tmpBoard[i/30][i%30] = drawView.getCheckedStates()[i/30][i%30];
-            else{
-                if (drawView.getCheckedStates()[i/30][i%30]==0) this.tmpBoard[i/30][i%30]=0;
-                else tmpBoard[i/30][i%30] = drawView.getCheckedStates()[i/30][i%30]==1?2:1;
+
+    private void updatetmpboard() {
+        for (int i = 0; i < 30 * 30; i++) {
+            if (toggleMode)
+                this.tmpBoard[i / 30][i % 30] = drawView.getCheckedStates()[i / 30][i % 30];
+            else {
+                if (drawView.getCheckedStates()[i / 30][i % 30] == 0)
+                    this.tmpBoard[i / 30][i % 30] = 0;
+                else
+                    tmpBoard[i / 30][i % 30] = drawView.getCheckedStates()[i / 30][i % 30] == 1 ? 2 : 1;
             }
         }
     }
-
 }

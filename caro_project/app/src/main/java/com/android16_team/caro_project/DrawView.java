@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Picture;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
@@ -71,6 +72,9 @@ public class DrawView extends View {
         space = 100;
         padding = 10;
         finish = false;
+
+        preStack = new Stack<>();
+        nextStack = new Stack<>();
     }
 
     public int[][] getCheckedStates() {
@@ -84,8 +88,16 @@ public class DrawView extends View {
         width = canvas.getWidth();
         nCols = canvas.getWidth() / space + 1;
         nRows = canvas.getHeight() / space + 1;
-        paint.setColor(Color.rgb(191, 203, 209));
+//        paint.setColor(Color.rgb(191, 203, 209));
+        paint.setColor(Color.rgb(255, 255, 255));
         paint.setStrokeWidth(5);
+
+//        Drawable d = getResources().getDrawable(R.drawable.bg, null);
+//        d.setBounds(0, 0, 465 * canvas.getHeight() / 305, canvas.getHeight());
+//        d.draw(canvas);
+
+        canvas.drawARGB(0, 255,255,255);
+
         //vẽ dọc
         for (int i = 0; i < 30; i++) {
             canvas.drawLine(i * space + dx, 0, i * space + dx, height, paint);
@@ -97,7 +109,7 @@ public class DrawView extends View {
         }
 
         if (curX != -1 && curY != -1) {
-            paint.setColor(Color.argb(25, 0, 0, 0));
+            paint.setColor(Color.argb(153, 0, 0, 0));
             paint.setStyle(Paint.Style.FILL);
             canvas.drawRect(new Rect(
                     curX * space + dx,
@@ -132,12 +144,12 @@ public class DrawView extends View {
     private void paintCheckedState(Canvas canvas, int checkedState, Node node) {
 
         if (checkedState == CheckedState.O) {
-            Drawable d = getResources().getDrawable(R.drawable.o_red, null);
+            Drawable d = getResources().getDrawable(R.drawable.o_snow, null);
             //as getDrawable(int drawable) is deprecated
-            d.setBounds(node.getY() * space + dx,
-                    node.getX() * space + dy,
-                    node.getY() * space + space + dx,
-                    node.getX() * space + space + dy);
+            d.setBounds(node.getY() * space + dx + padding,
+                    node.getX() * space + dy + padding,
+                    node.getY() * space + space + dx - padding,
+                    node.getX() * space + space + dy - padding);
             d.draw(canvas);
 
 //            paint.setColor(Color.rgb(255, 0, 0));
@@ -149,12 +161,25 @@ public class DrawView extends View {
 
         } else if (checkedState == CheckedState.X) {
 
-            Drawable d = getResources().getDrawable(R.drawable.x_blue, null);
+            Drawable d = getResources().getDrawable(R.drawable.x_snow, null);
             //as getDrawable(int drawable) is deprecated
-            d.setBounds(node.getY() * space + dx,
-                    node.getX() * space + dy,
-                    node.getY() * space + space + dx,
-                    node.getX() * space + space + dy);
+            d.setBounds(node.getY() * space + dx + padding,
+                    node.getX() * space + dy + padding,
+                    node.getY() * space + space + dx - padding,
+                    node.getX() * space + space + dy - padding);
+            d.draw(canvas);
+//            paint.setStrokeWidth(10);
+//            paint.setColor(Color.rgb(0, 0, 255));
+//            canvas.drawLine(node.getY()  * space + padding +dx, dy+node.getX() * space + padding, dx+node.getY() * space + space - padding, dy+node.getX() * 100 + 100 - padding, paint);
+//            canvas.drawLine(node.getY() * space + space - padding+dx, dy+node.getX() * space + padding, dx+node.getY() * space + padding, dy+node.getX() * 100 + 100 - padding, paint);
+        } else if (checkedState == CheckedState.STONE) {
+
+            Drawable d = getResources().getDrawable(R.drawable.snowman, null);
+            //as getDrawable(int drawable) is deprecated
+            d.setBounds(node.getY() * space + dx + padding,
+                    node.getX() * space + dy + padding,
+                    node.getY() * space + space + dx - padding,
+                    node.getX() * space + space + dy - padding);
             d.draw(canvas);
 //            paint.setStrokeWidth(10);
 //            paint.setColor(Color.rgb(0, 0, 255));
