@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -10,13 +9,14 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/colorPrimary"
-        android:elevation="4dp"
         android:backgroundTint="@color/colorButtonBlueSecond"
+        android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:collapseIcon="@drawable/ic_collapse_icon_24dp"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:titleTextColor="#fff"
-        app:subtitleTextColor="#fff">
+        app:subtitleTextColor="#000"
+        app:titleTextColor="#000">
+
     </android.support.v7.widget.Toolbar>
 
     <LinearLayout
@@ -34,60 +34,74 @@
     </LinearLayout>
 
     <!--<android.support.design.widget.FloatingActionButton-->
-        <!--android:id="@+id/btnMessage"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_margin="16dp"-->
-        <!--android:clickable="true"-->
-        <!--app:backgroundTint="@color/my_blue"-->
-        <!--app:layout_anchor="@id/caro_pane"-->
-        <!--app:layout_anchorGravity="bottom|right|end"-->
-        <!--app:srcCompat="@drawable/speech_bubble" />-->
+    <!--android:id="@+id/btnMessage"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_margin="16dp"-->
+    <!--android:clickable="true"-->
+    <!--app:backgroundTint="@color/my_blue"-->
+    <!--app:layout_anchor="@id/caro_pane"-->
+    <!--app:layout_anchorGravity="bottom|right|end"-->
+    <!--app:srcCompat="@drawable/speech_bubble" />-->
 
     <ImageButton
-        android:elevation="3dp"
         android:id="@+id/btnMessage"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_margin="16dp"
-        android:padding="15dp"
         android:background="@drawable/count_down_style"
-        app:layout_anchorGravity="bottom|right|end"
-        app:layout_anchor="@id/caro_pane"
+        android:elevation="3dp"
+        android:padding="15dp"
         android:src="@drawable/ic_message_white_24dp"
-        />
+        app:layout_anchor="@id/caro_pane"
+        app:layout_anchorGravity="bottom|right|end" />
 
     <Button
-        android:elevation="3dp"
         android:id="@+id/countTimer"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:background="@drawable/count_down_style"
-        android:textAlignment="center"
-        android:gravity="center"
-        android:textColor="@color/button_play_text_color"
         android:layout_margin="16dp"
-        app:layout_anchorGravity="bottom|left|end"
-        app:layout_anchor="@id/caro_pane"
+        android:background="@drawable/count_down_style"
+        android:elevation="3dp"
+        android:gravity="center"
+        android:text="0"
+        android:textAlignment="center"
+        android:textColor="@color/button_play_text_color"
         android:textStyle="bold"
-        android:text="0" />
+        app:layout_anchor="@id/caro_pane"
+        app:layout_anchorGravity="bottom|left|end" />
 
-        <TextView
-            android:elevation="4dp"
-            android:id="@+id/txtWaitingMsg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="23dp"
-            android:minWidth="23dp"
-            android:textAlignment="center"
-            android:text="0"
-            android:textSize="10sp"
-            android:textColor="#fff"
-            android:padding="5dp"
-            android:background="@drawable/quantity"
-            app:layout_anchor="@id/caro_pane"
-            app:layout_anchorGravity="bottom|right|end"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="47dp"/>
+    <TextView
+        android:id="@+id/txtWaitingMsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="47dp"
+        android:background="@drawable/quantity"
+        android:elevation="4dp"
+        android:minWidth="23dp"
+        android:minHeight="23dp"
+        android:padding="5dp"
+        android:text="0"
+        android:textAlignment="center"
+        android:textColor="#fff"
+        android:textSize="10sp"
+        app:layout_anchor="@id/caro_pane"
+        app:layout_anchorGravity="bottom|right|end" />
 
+    <com.jetradarmobile.snowfall.SnowfallView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="4dp"
+        app:snowflakeAlphaMax="255"
+        app:snowflakeAlphaMin="150"
+        app:snowflakeAngleMax="5"
+        app:snowflakeImage="@drawable/snowflake"
+        app:snowflakeSizeMax="32dp"
+        app:snowflakeSizeMin="8dp"
+        app:snowflakeSpeedMax="12"
+        app:snowflakeSpeedMin="4"
+        app:snowflakesAlreadyFalling="false"
+        app:snowflakesFadingEnabled="true"
+        app:snowflakesNum="250" />
 </android.support.design.widget.CoordinatorLayout>

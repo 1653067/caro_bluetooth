@@ -8,8 +8,13 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Picture;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PictureDrawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -32,11 +37,15 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.util.Random;
+
 public class PlayWithFriend extends AppCompatActivity {
 
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothService mChatService;
     private String mConnectedDeviceName;
+
+    public static final String TAG = "<<PLAY WITH FRIEND>>";
 
     private static final byte DEFAULT = 0;
     private static final byte USER_AGREE = 1;
@@ -82,7 +91,6 @@ public class PlayWithFriend extends AppCompatActivity {
         infoPlay = InfoPlay.getInstance();
 
         setTitle(infoPlay.getName());
-
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -223,6 +231,7 @@ public class PlayWithFriend extends AppCompatActivity {
 
                             if (drawView.isFinish()) {
                                 turn = true;
+                                Log.e(TAG, "You won");
                                 showConfirmDialog("Bạn đã thắng " + mConnectedDeviceName);
                             } else {
                                 changeTurn();
@@ -242,11 +251,14 @@ public class PlayWithFriend extends AppCompatActivity {
                                     drawView.invalidate();
                                     isContinue = DEFAULT;
                                     confirmDialog.dismiss();
+                                    Log.e(TAG, "Rival agreed");
+                                    Log.e(TAG, "Reset Board");
                                 } else {
                                     //Nếu đối phương chưa đồng ý
                                     //Tắt dialog confirm hiện tại và thông báo cho người dùng chờ
                                     confirmDialog.dismiss();
                                     isContinue = USER_AGREE;
+                                    Log.e(TAG, "Waiting for rival");
                                     showAlertDialog("Chờ đối thủ ...");
                                 }
                             }
@@ -278,8 +290,9 @@ public class PlayWithFriend extends AppCompatActivity {
                             timer.start();
                             turn = !turn;
                             if (drawView.isFinish()) {
-                                showConfirmDialog("Bạn đã thua " + mConnectedDeviceName);
                                 turn = false;
+                                Log.e(TAG, "You lose");
+                                showConfirmDialog("Bạn đã thua " + mConnectedDeviceName);
                             } else {
                                 changeTurn();
                             }
@@ -302,8 +315,11 @@ public class PlayWithFriend extends AppCompatActivity {
                                     drawView.invalidate();
                                     isContinue = DEFAULT;
                                     alertDialog.dismiss();
-                                } else
+                                    Log.e(TAG, "User agreed");
+                                    Log.e(TAG, "Reset Board");
+                                } else {
                                     isContinue = RIVAL_AGREE;
+                                }
                             } else {
                                 //Nếu đối thủ không đồng ý chơi tiếp
                                 //Kiểm tra xem người dùng đã đồng ý hay chưa
