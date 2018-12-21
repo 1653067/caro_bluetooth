@@ -29,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -80,6 +81,15 @@ public class PlayWithFriend extends AppCompatActivity {
     private InfoPlay infoPlay;
     private int noTurns = 0;
     private int noStones = 0;
+    private int pinch = 0;
+    private int space = 100;
+    private int padding = 10;
+    private float mPosX = 0;
+    private float mPosY = 0;
+    private ScaleGestureDetector mScaleDetector;
+    private float mLastTouchX;
+    private float mLastTouchY;
+    private boolean flagmove = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,6 +101,7 @@ public class PlayWithFriend extends AppCompatActivity {
         infoPlay = InfoPlay.getInstance();
 
         setTitle(infoPlay.getName());
+        mScaleDetector = new ScaleGestureDetector(PlayWithFriend.this, new PlayWithFriend.zoom());
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -99,27 +110,92 @@ public class PlayWithFriend extends AppCompatActivity {
             this.finish();
         }
 
+        DrawTool.drawCaroBg(this, findViewById(R.id.caro_pane));
+
         drawView = findViewById(R.id.drawView);
-        drawView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                cx = event.getX();
-                cy = event.getY();
-                return false;
-            }
-        });
 
         drawView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (turn) {
-                    String msg = drawView.check(cx, cy);
-                    if (msg != null) {
-                        sendMessage(MessageCaro.POSITION, msg);
-                    }
-                }
+
             }
         });
+
+        drawView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                final int action = event.getAction();
+                mScaleDetector.onTouchEvent(event);
+                switch (action) {
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                    case MotionEvent.ACTION_DOWN: {
+                        final float x = event.getX();
+                        final float y = event.getY();
+
+                        // Remember where we started
+                        mLastTouchX = x;
+                        mLastTouchY = y;
+                        break;
+                    }
+                    case MotionEvent.ACTION_POINTER_UP:
+                    case MotionEvent.ACTION_UP: {
+                        if (flagmove || pinch != 0) {
+                            if (flagmove == false) {
+                                pinch--;
+                            }
+                            flagmove = false;
+                        } else { //danh o day
+                            cx = event.getX();
+                            cy = event.getY();
+                            if (turn) {
+                                String msg = drawView.check(cx, cy);
+                                if (msg != null) {
+                                    sendMessage(MessageCaro.POSITION, msg);
+                                }
+                            }
+
+                        }
+
+
+                    }
+                    break;
+
+                    case MotionEvent.ACTION_MOVE:
+                        if (!mScaleDetector.isInProgress()) {
+
+                            final float x = event.getX();
+                            final float y = event.getY();
+
+                            // Calculate the distance moved
+                            final float dx = x - mLastTouchX;
+                            final float dy = y - mLastTouchY;
+                            if (Math.abs((int) dx) > 30 || Math.abs((int) dy) > 30) {
+                                flagmove = true;
+                                // Move the object
+                                mPosX += dx;
+                                mPosY += dy;
+                                mPosX = mPosX > 0 ? 0 : mPosX;
+                                mPosY = mPosY > 0 ? 0 : mPosY;
+                                int minwidth = -1 * (30 * space - drawView.getWidth());
+                                int minheight = -1 * (30 * space - drawView.getHeight());
+                                mPosX = mPosX < minwidth ? minwidth : mPosX;
+                                mPosY = mPosY < minheight ? minheight : mPosY;
+                                // Remember this touch position for the next move event
+                                mLastTouchX = x;
+                                mLastTouchY = y;
+
+                                // Invalidate to request a redraw
+                                drawView.updatePosition((int) mPosX, (int) mPosY);
+                                break;
+                            }
+                        }
+                }
+
+
+                return false;
+            }
+        });
+
 
         btnMessage = findViewById(R.id.btnMessage);
         btnMessage.setOnClickListener(new View.OnClickListener() {
@@ -310,7 +386,7 @@ public class PlayWithFriend extends AppCompatActivity {
                             if (readMessage.equals("yes")) {
                                 //Nếu đối thủ đồng ý tiếp tục chơi tiếp
                                 //Ghi nhớ đối thủ đã đồng ý
-                                if(isContinue == USER_AGREE) {
+                                if (isContinue == USER_AGREE) {
                                     drawView.init();
                                     drawView.invalidate();
                                     isContinue = DEFAULT;
@@ -323,12 +399,12 @@ public class PlayWithFriend extends AppCompatActivity {
                             } else {
                                 //Nếu đối thủ không đồng ý chơi tiếp
                                 //Kiểm tra xem người dùng đã đồng ý hay chưa
-                                if(isContinue == USER_AGREE) {
+                                if (isContinue == USER_AGREE) {
                                     //Tắt dialog thông báo chờ đối thủ
                                     alertDialog.dismiss();
                                     //Thông báo cho người dùng người chơi kia đã không đồng ý
                                     showAlertDialog("Đối thủ đã rời đi");
-                                } else if(isContinue == DEFAULT) {
+                                } else if (isContinue == DEFAULT) {
                                     //Người dùng chưa quyết định
                                     //Tắt Confirm dialog hiện tại đi
                                     confirmDialog.dismiss();
@@ -555,9 +631,9 @@ public class PlayWithFriend extends AppCompatActivity {
     }
 
     private void changeTurn() {
-        if(infoPlay.isHaveSwapTurn()) {
+        if (infoPlay.isHaveSwapTurn()) {
             noTurns++;
-            if(noTurns == infoPlay.getNoTurns()) {
+            if (noTurns == infoPlay.getNoTurns()) {
                 drawView.changeState();
                 noTurns = 0;
                 Toast.makeText(PlayWithFriend.this, "Thay đổi cờ", Toast.LENGTH_SHORT).show();
@@ -565,6 +641,24 @@ public class PlayWithFriend extends AppCompatActivity {
             }
         }
     }
+
+    public class zoom extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        private float mScaleFactor = 1;
+
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            pinch = 2;
+            mScaleFactor = detector.getScaleFactor();
+            space = Math.round(mScaleFactor * space);
+            padding = Math.round(mScaleFactor * padding);
+
+            space = space > 200 ? 200 : space;
+            space = space < 80 ? 80 : space;
+            drawView.setSpace(space, padding);
+            return true;
+        }
+    }
+
 }
 
 
