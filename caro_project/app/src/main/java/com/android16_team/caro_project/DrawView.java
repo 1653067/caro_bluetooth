@@ -92,17 +92,9 @@ public class DrawView extends View {
         paint.setColor(Color.rgb(255, 255, 255));
         paint.setStrokeWidth(5);
 
-//        Drawable d = getResources().getDrawable(R.drawable.bg, null);
-//        d.setBounds(0, 0, 465 * canvas.getHeight() / 305, canvas.getHeight());
-//        d.draw(canvas);
-
         canvas.drawARGB(0, 255,255,255);
 
         //vẽ dọc
-        Drawable d = getResources().getDrawable(R.drawable.bg, null);
-        d.setBounds(0, 0, width, height);
-        d.draw(canvas);
-        canvas.drawARGB(125,255,255,255);
         for (int i = 0; i < 30; i++) {
             canvas.drawLine(i * space + dx, 0, i * space + dx, height, paint);
         }
