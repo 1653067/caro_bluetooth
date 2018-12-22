@@ -59,6 +59,7 @@ public class PlayWithBot extends AppCompatActivity {
     private float mLastTouchY;
     private Toolbar myToolbar;
     private boolean toggleMode = true;
+    private OptionDialog optionDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -219,6 +220,7 @@ public class PlayWithBot extends AppCompatActivity {
         txtCountDownTimer = findViewById(R.id.countTimer);
         txtCountDownTimer.setVisibility(View.INVISIBLE);
 
+        optionDialog = new OptionDialog(PlayWithBot.this, InfoPlay.getInstance());
 
     }
 
@@ -356,6 +358,8 @@ public class PlayWithBot extends AppCompatActivity {
                 mHandler.obtainMessage(CHANGE_ICON).sendToTarget();
                 return true;
             case R.id.option:
+                optionDialog.show();
+                return true;
 
         }
         return false;

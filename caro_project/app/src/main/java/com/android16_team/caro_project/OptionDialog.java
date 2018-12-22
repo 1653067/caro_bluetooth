@@ -2,6 +2,7 @@ package com.android16_team.caro_project;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.View;
@@ -63,8 +64,6 @@ public class OptionDialog extends Dialog implements View.OnClickListener {
         cbSound.setChecked(infoPlay.isSound());
 
         this.context = context;
-
-        ((MainActivity)context).playMusic(infoPlay.isMusic());
     }
 
     @Override
@@ -118,7 +117,10 @@ public class OptionDialog extends Dialog implements View.OnClickListener {
                 infoPlay.setNoStones(Integer.parseInt(txtStones.getText().toString()));
                 infoPlay.setNoTurns(Integer.parseInt(txtChangeTurn.getText().toString()));
 
-                ((MainActivity)context).playMusic(infoPlay.isMusic());
+                Intent intent = new Intent("com.android16_team.caro_project.MusicService");
+                int option = cbMusic.isChecked() ? MusicService.PLAY : MusicService.STOP;
+                intent.putExtra(MusicService.OPTION_MUSIC, option);
+                context.sendBroadcast(intent);
 
                 this.dismiss();
                 break;
@@ -138,5 +140,11 @@ public class OptionDialog extends Dialog implements View.OnClickListener {
         cbChange.setChecked(infoPlay.isHaveSwapTurn());
         cbMusic.setChecked(infoPlay.isMusic());
         cbSound.setChecked(infoPlay.isSound());
+    }
+
+    @Override
+    public void show() {
+        update();
+        super.show();
     }
 }

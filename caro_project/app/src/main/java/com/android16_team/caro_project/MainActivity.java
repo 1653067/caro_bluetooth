@@ -57,18 +57,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         infoPlay = InfoPlay.getInstance();
         readData();
+        startService(new Intent(this, MusicService.class));
         optionDialog = new OptionDialog(context, infoPlay);
-
-
     }
-
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
 
         return super.onPrepareOptionsMenu(menu);
     }
-
 
     @Override
     public void onClick(View v) {
@@ -144,14 +141,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             in.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    public void playMusic(boolean play) {
-        if(play) {
-            startService(new Intent(this, MusicService.class));
-        } else {
-            stopService(new Intent(this, MusicService.class));
         }
     }
 
