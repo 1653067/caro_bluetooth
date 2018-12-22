@@ -64,6 +64,9 @@ public class BluetoothService {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = STATE_NONE;
         mNewState = mState;
+
+        messages.add(new MyMessage("hello", true));
+        messages.add(new MyMessage("hello", false));
     }
 
     public static BluetoothService getInstance() {

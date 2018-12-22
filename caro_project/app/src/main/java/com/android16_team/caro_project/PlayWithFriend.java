@@ -63,7 +63,7 @@ public class PlayWithFriend extends AppCompatActivity {
     private float cx;
     private float cy;
 
-    private boolean toggleMode = true;
+    private boolean toggleMode = false;
     private Integer noWaitingMsg = 0;
 
     protected boolean isRunning = false;
@@ -81,6 +81,11 @@ public class PlayWithFriend extends AppCompatActivity {
     private InfoPlay infoPlay;
     private int noTurns = 0;
     private int noStones = 0;
+    private int noTurnsMax = 0;
+    private int noStonesMax = 0;
+    private int noTurnCreateStone = -1;
+    private int noTurnStone = 0;
+    private boolean rndStones = false;
     private int pinch = 0;
     private int space = 100;
     private int padding = 10;
@@ -99,6 +104,7 @@ public class PlayWithFriend extends AppCompatActivity {
         setSupportActionBar(myToolbar);
 
         infoPlay = InfoPlay.getInstance();
+        noStones = infoPlay.getNoStones();
 
         setTitle(infoPlay.getName());
         mScaleDetector = new ScaleGestureDetector(PlayWithFriend.this, new PlayWithFriend.zoom());
@@ -219,13 +225,21 @@ public class PlayWithFriend extends AppCompatActivity {
             @Override
             public void onFinish() {
                 if (turn) {
-                    sendMessage(MessageCaro.TIMEOUT, "");
+                    sendMessage(MessageCaro.TIMEOUT, "ahihi");
                 }
             }
         };
 
         txtWaitingMsg = findViewById(R.id.txtWaitingMsg);
         txtWaitingMsg.setVisibility(View.INVISIBLE);
+
+        if(infoPlay.isHaveStone()){
+            noStonesMax = infoPlay.getNoStones();
+        }
+
+        if(infoPlay.isHaveSwapTurn()) {
+            noTurnsMax = infoPlay.getNoTurns();
+        }
     }
 
     private void sendMessage(byte messageMode, String message) {
@@ -274,8 +288,11 @@ public class PlayWithFriend extends AppCompatActivity {
                 case Constants.MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
                         case BluetoothService.STATE_CONNECTED:
-                            setStatus(getString(R.string.title_connected_to) + mConnectedDeviceName);
+                            setStatus(getString(R.string.title_connected_to) + " " + mConnectedDeviceName);
                             connectDialog.dismiss();
+                            PlayWithFriend.this.sendMessage(MessageCaro.INFO,
+                                    infoPlay.getName() + ";" + (!infoPlay.isHaveStone() ? 0 : infoPlay.getNoStones())
+                                            + ";" + (!infoPlay.isHaveSwapTurn() ? 0 : infoPlay.getNoTurns()));
 //                            mConversationArrayAdapter.clear();
                             break;
                         case BluetoothService.STATE_CONNECTING:
@@ -311,9 +328,17 @@ public class PlayWithFriend extends AppCompatActivity {
                                 showConfirmDialog("Bạn đã thắng " + mConnectedDeviceName);
                             } else {
                                 changeTurn();
+                                createStones();
                             }
                             break;
                         }
+                        case MessageCaro.STONE: {
+                            String[] pos = writeMessage.split(" ");
+                            int i = Integer.parseInt(pos[0]);
+                            int j = Integer.parseInt(pos[1]);
+                            drawView.setStone(i, j);
+                        }
+                        break;
                         case MessageCaro.CONTINUE: {
                             Log.e("<<WRITE-CONTINUE>>", writeMessage);
                             if (writeMessage.equals("yes")) {
@@ -343,6 +368,8 @@ public class PlayWithFriend extends AppCompatActivity {
                         case MessageCaro.TIMEOUT: {
                             //Nhớ sửa nha cu
                             Log.e("<<WRITE-TIMEOUT>>", writeMessage);
+                            showConfirmDialog("Bạn đã thua " + mConnectedDeviceName);
+                            turn = false;
                         }
                         break;
                     }
@@ -371,6 +398,7 @@ public class PlayWithFriend extends AppCompatActivity {
                                 showConfirmDialog("Bạn đã thua " + mConnectedDeviceName);
                             } else {
                                 changeTurn();
+                                createStones();
                             }
                             break;
                         }
@@ -381,6 +409,13 @@ public class PlayWithFriend extends AppCompatActivity {
                             txtWaitingMsg.setText(noWaitingMsg.toString());
                             break;
                         }
+                        case MessageCaro.STONE: {
+                            String[] pos = readMessage.split(" ");
+                            int i = Integer.parseInt(pos[0]);
+                            int j = Integer.parseInt(pos[1]);
+                            drawView.setStone(i, j);
+                        }
+                        break;
                         case MessageCaro.CONTINUE: {
                             Log.e("<<READ-CONTINUE>>", readMessage);
                             if (readMessage.equals("yes")) {
@@ -416,7 +451,20 @@ public class PlayWithFriend extends AppCompatActivity {
                         }
                         case MessageCaro.TIMEOUT: {
                             Log.e("<<READ-TIMEOUT>>", readMessage);
-//                            showConfirmDialog();
+                            showConfirmDialog("Bạn đã thắng " + mConnectedDeviceName);
+                            turn = true;
+                            break;
+                        }
+                        case MessageCaro.INFO: {
+                            String[] info = readMessage.split(";");
+                            setStatus(getString(R.string.title_connected_to) + " " + info[0]);
+                            noStonesMax = Integer.parseInt(info[1]);
+                            noTurnsMax = Integer.parseInt(info[2]);
+                            PlayWithFriend.this.sendMessage(MessageCaro.NAME, infoPlay.getName());
+                            break;
+                        }
+                        case MessageCaro.NAME: {
+                            setStatus(getString(R.string.title_connected_to) + " " + readMessage);
                             break;
                         }
                     }
@@ -473,6 +521,11 @@ public class PlayWithFriend extends AppCompatActivity {
                         Intent serverIntent = new Intent(PlayWithFriend.this, DeviceListActivity.class);
                         startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE);
                         turn = true;
+                        toggleMode = true;
+                        PlayWithFriend.this.invalidateOptionsMenu();
+                        if (infoPlay.isHaveStone()) {
+                            rndStones = true;
+                        }
                         connectDialog.dismiss();
                     }
                 });
@@ -631,13 +684,43 @@ public class PlayWithFriend extends AppCompatActivity {
     }
 
     private void changeTurn() {
-        if (infoPlay.isHaveSwapTurn()) {
+        if (noTurnsMax > 0) {
             noTurns++;
-            if (noTurns == infoPlay.getNoTurns()) {
+            if (noTurns == noTurnsMax) {
                 drawView.changeState();
                 noTurns = 0;
                 Toast.makeText(PlayWithFriend.this, "Thay đổi cờ", Toast.LENGTH_SHORT).show();
+                toggleMode = !toggleMode;
                 PlayWithFriend.this.supportInvalidateOptionsMenu();
+            }
+        }
+    }
+
+    private void createStones() {
+        Random rnd = new Random();
+        if (rndStones && infoPlay.isHaveStone()) {
+            if (noTurnCreateStone == -1) {
+                noTurnCreateStone = rnd.nextInt(5) + 5;
+                noTurnStone++;
+            } else {
+                noTurnStone++;
+                if (noTurnStone == noTurnCreateStone) {
+                    noStones--;
+                    if (noStones > -1) {
+                        noTurnStone = 0;
+                        noTurnCreateStone = rnd.nextInt(15) + 5;
+//                    //Random Position
+                        int i = Math.abs(rnd.nextInt()) % 5 - 2;
+                        int j = Math.abs(rnd.nextInt()) % 5 - 2;
+                        String msg = drawView.check(i, j);
+                        while (msg == null) {
+                            i = Math.abs(rnd.nextInt()) % 5 - 2;
+                            j = Math.abs(rnd.nextInt()) % 5 - 2;
+                            msg = drawView.check(i, j);
+                        }
+                        sendMessage(MessageCaro.STONE, msg);
+                    }
+                }
             }
         }
     }

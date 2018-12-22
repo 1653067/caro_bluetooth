@@ -31,16 +31,15 @@
             android:layout_marginHorizontal="5dp"
             android:layout_marginBottom="5dp"
             android:hint="Input text here"
-            android:background="@drawable/edit_text_chat_style"
+            android:background="@drawable/edit_text_style"
             />
 
-        <android.support.design.button.MaterialButton
+        <ImageButton
             android:id="@+id/btnSend"
-            style="@style/Widget.MaterialComponents.Button"
-            android:textAppearance="@style/TextAppearance.AppCompat.Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Send"
-            app:cornerRadius="20dp"/>
+            android:background="@drawable/button_send"
+            android:layout_width="50dp"
+            android:layout_height="40dp"
+            android:src="@drawable/src_send"
+            android:textColor="@color/button_play_text_color"/>
     </LinearLayout>
 </LinearLayout>

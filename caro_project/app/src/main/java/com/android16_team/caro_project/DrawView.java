@@ -67,7 +67,7 @@ public class DrawView extends View {
         curX = -1;
         curY = -1;
         dx = 0;
-        dy =0;
+        dy = 0;
         curState = CheckedState.O;
         space = 100;
         padding = 10;
@@ -92,7 +92,7 @@ public class DrawView extends View {
         paint.setColor(Color.rgb(255, 255, 255));
         paint.setStrokeWidth(5);
 
-        canvas.drawARGB(0, 255,255,255);
+        canvas.drawARGB(0, 255, 255, 255);
 
         //vẽ dọc
         for (int i = 0; i < 30; i++) {
@@ -201,7 +201,7 @@ public class DrawView extends View {
             checkedStates[node.getY()][node.getX()] = curState;
             clearNextStack();
             this.preStack.push(node);
-            if(checkWin(node)) {
+            if (checkWin(node)) {
                 this.finish = true;
             }
             curState = curState == CheckedState.O ? CheckedState.X : CheckedState.O;
@@ -212,6 +212,27 @@ public class DrawView extends View {
         // postInvalidate();
 
     }
+
+    public String check(int i, int j) {
+        if (curX + j >= 0 && curX + j < 30
+                && curY + i >= 0 && curY + i < 30
+                && checkedStates[curX + j][curY + i] == CheckedState.NONE) {
+            return (curX + j) + " " + (curY + i);
+        }
+        return null;
+    }
+
+    public void setStone(int i, int j) {
+        if (checkedStates[j][i] == CheckedState.NONE) {
+            if (InfoPlay.getInstance().isSound())
+                mediaPlayer.start();
+            checkedStates[j][i] = CheckedState.STONE;
+            curX = i;
+            curY = j;
+            invalidate();
+        }
+    }
+
 
     public String check(Float x, Float y) {
         int i = (int) ((y + -1 * dy) / space);
@@ -237,8 +258,9 @@ public class DrawView extends View {
         if (this.nextStack != null)
             this.nextStack.clear();
     }
-    public void clearPreStack(){
-        if(this.preStack!= null)
+
+    public void clearPreStack() {
+        if (this.preStack != null)
             this.preStack.clear();
     }
 
@@ -412,25 +434,26 @@ public class DrawView extends View {
     public void changeState() {
         curState = curState == CheckedState.O ? CheckedState.X : CheckedState.O;
     }
-    public void undo(){
-        if(this.preStack!= null && !this.preStack.empty()) {
+
+    public void undo() {
+        if (this.preStack != null && !this.preStack.empty()) {
             Node n = this.preStack.pop();
             checkedStates[n.getY()][n.getX()] = CheckedState.NONE;
             invalidate();
             curState = curState == CheckedState.O ? CheckedState.X : CheckedState.O;
             this.nextStack.push(n);
-            if(!this.preStack.empty()){
+            if (!this.preStack.empty()) {
                 curX = this.preStack.lastElement().getX();
                 curY = this.preStack.lastElement().getY();
-            }
-            else{
+            } else {
                 curX = -1;
                 curY = -1;
             }
         }
     }
-    public void redo(){
-        if(this.nextStack!= null && !nextStack.empty()){
+
+    public void redo() {
+        if (this.nextStack != null && !nextStack.empty()) {
             Node n = this.nextStack.pop();
             checkedStates[n.getY()][n.getX()] = curState;
             invalidate();
@@ -440,11 +463,13 @@ public class DrawView extends View {
             curY = n.getY();
         }
     }
-    public void createstack(){
+
+    public void createstack() {
         nextStack = new Stack<Node>();
         preStack = new Stack<Node>();
     }
-    public boolean checkBotFirst(){
+
+    public boolean checkBotFirst() {
         if (preStack.size() == 1) return false;
         return true;
     }

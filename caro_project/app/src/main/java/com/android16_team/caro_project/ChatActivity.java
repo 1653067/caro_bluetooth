@@ -8,7 +8,9 @@ import android.support.design.button.MaterialButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -18,7 +20,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private MessageAdapter messageAdapter;
     private ListView messageListView;
-    private MaterialButton btnSend;
+    private ImageButton btnSend;
     private EditText messageEditText;
     private BluetoothService mChatService;
     private String mConnectedDeviceName;
