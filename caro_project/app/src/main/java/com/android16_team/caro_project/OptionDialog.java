@@ -1,5 +1,6 @@
 package com.android16_team.caro_project;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -19,7 +20,7 @@ public class OptionDialog extends Dialog implements View.OnClickListener {
     private InfoPlay infoPlay;
     private EditText txtName, txtStones, txtChangeTurn;
     private Button btnMinusStone, btnPlusStone, btnMinusTurn, btnPlusTurn, btnApply, btnCancel;
-    private CheckBox cbStone, cbChange, cbMusic, cbSound;
+    private CheckBox cbStone, cbChange, cbMusic, cbSound, cbEffect;
 
     private Context context;
 
@@ -46,6 +47,7 @@ public class OptionDialog extends Dialog implements View.OnClickListener {
         cbChange = this.findViewById(R.id.cbChangeTurn);
         cbMusic = this.findViewById(R.id.cbMusic);
         cbSound = this.findViewById(R.id.cbSound);
+        cbEffect = this.findViewById(R.id.cbEffect);
 
         btnMinusStone.setOnClickListener(this);
         btnPlusStone.setOnClickListener(this);
@@ -62,6 +64,7 @@ public class OptionDialog extends Dialog implements View.OnClickListener {
         cbChange.setChecked(infoPlay.isHaveSwapTurn());
         cbMusic.setChecked(infoPlay.isMusic());
         cbSound.setChecked(infoPlay.isSound());
+        cbEffect.setChecked(infoPlay.isEffect());
 
         this.context = context;
     }
@@ -114,6 +117,7 @@ public class OptionDialog extends Dialog implements View.OnClickListener {
                 infoPlay.setHaveSwapTurn(cbChange.isChecked());
                 infoPlay.setSound(cbSound.isChecked());
                 infoPlay.setMusic(cbMusic.isChecked());
+                infoPlay.setEffect(cbEffect.isChecked());
                 infoPlay.setNoStones(Integer.parseInt(txtStones.getText().toString()));
                 infoPlay.setNoTurns(Integer.parseInt(txtChangeTurn.getText().toString()));
 
@@ -121,6 +125,8 @@ public class OptionDialog extends Dialog implements View.OnClickListener {
                 int option = cbMusic.isChecked() ? MusicService.PLAY : MusicService.STOP;
                 intent.putExtra(MusicService.OPTION_MUSIC, option);
                 context.sendBroadcast(intent);
+
+                ((Activity)context).findViewById(R.id.snowfall).setVisibility(infoPlay.isEffect() ? View.VISIBLE : View.GONE);
 
                 this.dismiss();
                 break;
@@ -140,6 +146,7 @@ public class OptionDialog extends Dialog implements View.OnClickListener {
         cbChange.setChecked(infoPlay.isHaveSwapTurn());
         cbMusic.setChecked(infoPlay.isMusic());
         cbSound.setChecked(infoPlay.isSound());
+        cbEffect.setChecked(infoPlay.isEffect());
     }
 
     @Override

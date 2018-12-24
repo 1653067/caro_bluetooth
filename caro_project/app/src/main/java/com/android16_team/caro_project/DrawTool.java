@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Picture;
 import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PictureDrawable;
 import android.support.v7.widget.Toolbar;
@@ -48,15 +49,20 @@ public class DrawTool {
     }
 
     public static void drawCaroBg(Context context, View view) {
-        Picture picture = new Picture();
-        Activity activity = (Activity) context;
-        Point size = new Point();
-        activity.getWindowManager().getDefaultDisplay().getSize(size);
-        Canvas canvas = picture.beginRecording(size.x, size.y);
-        Drawable d = context.getResources().getDrawable(R.drawable.bg, null);
-        d.setBounds(0, 0, 465 * canvas.getHeight() / 305, canvas.getHeight());
-        d.draw(canvas);
-        picture.endRecording();
-        view.setBackground(new PictureDrawable(picture));
+        InfoPlay infoPlay = InfoPlay.getInstance();
+        if(infoPlay.isEffect()) {
+            Picture picture = new Picture();
+            Activity activity = (Activity) context;
+            Point size = new Point();
+            activity.getWindowManager().getDefaultDisplay().getSize(size);
+            Canvas canvas = picture.beginRecording(size.x, size.y);
+            Drawable d = context.getResources().getDrawable(R.drawable.bg, null);
+            d.setBounds(0, 0, 465 * canvas.getHeight() / 305, canvas.getHeight());
+            d.draw(canvas);
+            picture.endRecording();
+            view.setBackground(new PictureDrawable(picture));
+        } else {
+            view.setBackground(new ColorDrawable(Color.WHITE));
+        }
     }
 }

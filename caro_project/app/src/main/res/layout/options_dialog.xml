@@ -64,17 +64,10 @@
                 android:layout_height="35dp"
                 android:layout_weight="1"
                 android:button="@drawable/check_box_style"></CheckBox>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginBottom="16dp">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SỐ LƯỢNG ĐÁ"
+                android:text="SỐ ĐÁ"
                 android:textStyle="bold"
                 android:layout_marginRight="10dp"/>
 
@@ -111,8 +104,9 @@
                 android:text="+"
                 android:textColor="@color/button_play_text_color"
                 android:textStyle="bold" />
-
         </LinearLayout>
+
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -127,21 +121,16 @@
 
             <CheckBox
                 android:id="@+id/cbChangeTurn"
-                android:layout_width="30dp"
+                android:layout_width="32dp"
                 android:layout_height="35dp"
                 android:layout_weight="1"
+                android:layout_marginRight="10dp"
                 android:button="@drawable/check_box_style"></CheckBox>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginBottom="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SỐ LƯỢT"
+                android:text="LƯỢT"
                 android:textStyle="bold"
                 android:layout_marginRight="10dp"/>
 
@@ -178,7 +167,6 @@
                 android:text="+"
                 android:textColor="@color/button_play_text_color"
                 android:textStyle="bold" />
-
         </LinearLayout>
 
         <LinearLayout
@@ -207,6 +195,25 @@
 
             <CheckBox
                 android:id="@+id/cbSound"
+                android:layout_width="30dp"
+                android:layout_height="35dp"
+                android:layout_weight="1"
+                android:button="@drawable/check_box_style"></CheckBox>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HIỆU ỨNG"
+                android:textStyle="bold"
+                android:layout_marginRight="10dp"/>
+
+            <CheckBox
+                android:id="@+id/cbEffect"
                 android:layout_width="30dp"
                 android:layout_height="35dp"
                 android:layout_weight="1"

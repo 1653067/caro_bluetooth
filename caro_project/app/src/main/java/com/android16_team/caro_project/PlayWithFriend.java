@@ -36,6 +36,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jetradarmobile.snowfall.SnowfallView;
+
 import org.w3c.dom.Text;
 
 import java.util.Random;
@@ -77,6 +79,7 @@ public class PlayWithFriend extends AppCompatActivity {
     private ConfirmDialog alertDialog;
     private ConfirmDialog confirmDialog;
     private ConfirmDialog connectDialog;
+    private ConfirmDialog ruleDialog;
 
     private InfoPlay infoPlay;
     private int noTurns = 0;
@@ -95,6 +98,9 @@ public class PlayWithFriend extends AppCompatActivity {
     private float mLastTouchX;
     private float mLastTouchY;
     private boolean flagmove = false;
+    private PlayWithFriend activity = this;
+
+    private SnowfallView snowfallView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -106,14 +112,22 @@ public class PlayWithFriend extends AppCompatActivity {
         infoPlay = InfoPlay.getInstance();
         noStones = infoPlay.getNoStones();
 
+        activity = this;
+
         setTitle(infoPlay.getName());
-        mScaleDetector = new ScaleGestureDetector(PlayWithFriend.this, new PlayWithFriend.zoom());
+        mScaleDetector = new ScaleGestureDetector(activity, new PlayWithFriend.zoom());
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
             this.finish();
+        }
+
+        snowfallView = findViewById(R.id.snowfall);
+
+        if(!infoPlay.isEffect()) {
+            snowfallView.setVisibility(View.GONE);
         }
 
         DrawTool.drawCaroBg(this, findViewById(R.id.caro_pane));
@@ -209,7 +223,7 @@ public class PlayWithFriend extends AppCompatActivity {
             public void onClick(View v) {
                 noWaitingMsg = 0;
                 txtWaitingMsg.setVisibility(View.INVISIBLE);
-                Intent intent = new Intent(PlayWithFriend.this, ChatActivity.class);
+                Intent intent = new Intent(activity, ChatActivity.class);
                 startActivityForResult(intent, 123);
             }
         });
@@ -233,11 +247,11 @@ public class PlayWithFriend extends AppCompatActivity {
         txtWaitingMsg = findViewById(R.id.txtWaitingMsg);
         txtWaitingMsg.setVisibility(View.INVISIBLE);
 
-        if(infoPlay.isHaveStone()){
+        if (infoPlay.isHaveStone()) {
             noStonesMax = infoPlay.getNoStones();
         }
 
-        if(infoPlay.isHaveSwapTurn()) {
+        if (infoPlay.isHaveSwapTurn()) {
             noTurnsMax = infoPlay.getNoTurns();
         }
     }
@@ -245,7 +259,7 @@ public class PlayWithFriend extends AppCompatActivity {
     private void sendMessage(byte messageMode, String message) {
         // Check that we're actually connected before trying anything
         if (mChatService.getState() != BluetoothService.STATE_CONNECTED) {
-            Toast.makeText(PlayWithFriend.this, R.string.not_connected, Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, R.string.not_connected, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -283,14 +297,14 @@ public class PlayWithFriend extends AppCompatActivity {
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Activity activity = PlayWithFriend.this;
             switch (msg.what) {
                 case Constants.MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
                         case BluetoothService.STATE_CONNECTED:
                             setStatus(getString(R.string.title_connected_to) + " " + mConnectedDeviceName);
-                            connectDialog.dismiss();
-                            PlayWithFriend.this.sendMessage(MessageCaro.INFO,
+                            if (connectDialog != null)
+                                connectDialog.dismiss();
+                            activity.sendMessage(MessageCaro.INFO,
                                     infoPlay.getName() + ";" + (!infoPlay.isHaveStone() ? 0 : infoPlay.getNoStones())
                                             + ";" + (!infoPlay.isHaveSwapTurn() ? 0 : infoPlay.getNoTurns()));
 //                            mConversationArrayAdapter.clear();
@@ -348,8 +362,7 @@ public class PlayWithFriend extends AppCompatActivity {
                                     //Nếu đối phương đồng ý
                                     //Thì reset board
                                     //Tắt confirm dialog
-                                    drawView.init();
-                                    drawView.invalidate();
+activity.reset();
                                     isContinue = DEFAULT;
                                     confirmDialog.dismiss();
                                     Log.e(TAG, "Rival agreed");
@@ -373,8 +386,8 @@ public class PlayWithFriend extends AppCompatActivity {
                         }
                         break;
                     }
+                    break;
                 }
-                break;
                 case Constants.MESSAGE_READ: {
                     byte[] readBuf = (byte[]) msg.obj;
                     // construct a string from the valid bytes in the buffer
@@ -422,8 +435,7 @@ public class PlayWithFriend extends AppCompatActivity {
                                 //Nếu đối thủ đồng ý tiếp tục chơi tiếp
                                 //Ghi nhớ đối thủ đã đồng ý
                                 if (isContinue == USER_AGREE) {
-                                    drawView.init();
-                                    drawView.invalidate();
+activity.reset();
                                     isContinue = DEFAULT;
                                     alertDialog.dismiss();
                                     Log.e(TAG, "User agreed");
@@ -460,13 +472,17 @@ public class PlayWithFriend extends AppCompatActivity {
                             setStatus(getString(R.string.title_connected_to) + " " + info[0]);
                             noStonesMax = Integer.parseInt(info[1]);
                             noTurnsMax = Integer.parseInt(info[2]);
-                            PlayWithFriend.this.sendMessage(MessageCaro.NAME, infoPlay.getName());
-                            break;
+                            activity.sendMessage(MessageCaro.NAME, infoPlay.getName());
+                            showRuleDialog(noStonesMax, noTurnsMax);
                         }
+                        break;
                         case MessageCaro.NAME: {
                             setStatus(getString(R.string.title_connected_to) + " " + readMessage);
-                            break;
+                            noStonesMax = infoPlay.isHaveStone() ? infoPlay.getNoStones() : 0;
+                            noTurnsMax = infoPlay.isHaveSwapTurn() ? infoPlay.getNoTurns() : 0;
+                            showRuleDialog(noStonesMax, noTurnsMax);
                         }
+                        break;
                     }
 
                     break;
@@ -491,10 +507,11 @@ public class PlayWithFriend extends AppCompatActivity {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+
         if (mChatService != null) {
             mChatService.stop();
         }
+        super.onDestroy();
     }
 
     @Override
@@ -511,18 +528,18 @@ public class PlayWithFriend extends AppCompatActivity {
                 mChatService.start();
 
                 //Tạo dialog thông báo người dùng kết nối BT
-                connectDialog = new ConfirmDialog(PlayWithFriend.this);
+                connectDialog = new ConfirmDialog(activity);
                 connectDialog.setTitle("Thông báo");
                 connectDialog.setMessage("Bạn hãy kết nối với một người chơi khác");
                 connectDialog.setCancelable(false);
                 connectDialog.setButton(ConfirmDialog.PositiveButton, "Kết nối", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent serverIntent = new Intent(PlayWithFriend.this, DeviceListActivity.class);
+                        Intent serverIntent = new Intent(activity, DeviceListActivity.class);
                         startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE);
                         turn = true;
                         toggleMode = true;
-                        PlayWithFriend.this.invalidateOptionsMenu();
+                        activity.invalidateOptionsMenu();
                         if (infoPlay.isHaveStone()) {
                             rndStones = true;
                         }
@@ -533,7 +550,7 @@ public class PlayWithFriend extends AppCompatActivity {
                 connectDialog.setButton(ConfirmDialog.NegativeButton, "Thoát", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        PlayWithFriend.this.finish();
+                        activity.finish();
                     }
                 });
 
@@ -569,9 +586,9 @@ public class PlayWithFriend extends AppCompatActivity {
                 } else {
                     // User did not enable Bluetooth or an error occurred
 //                    Log.d(TAG, "BT not enabled");
-                    Toast.makeText(PlayWithFriend.this, R.string.bt_not_enabled_leaving,
+                    Toast.makeText(activity, R.string.bt_not_enabled_leaving,
                             Toast.LENGTH_SHORT).show();
-                    PlayWithFriend.this.finish();
+                    activity.finish();
                 }
         }
     }
@@ -608,14 +625,14 @@ public class PlayWithFriend extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.secure_connect_scan: {
                 // Launch the DeviceListActivity to see devices and do scan
-                Intent serverIntent = new Intent(PlayWithFriend.this, DeviceListActivity.class);
+                Intent serverIntent = new Intent(activity, DeviceListActivity.class);
                 startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE);
                 turn = true;
                 return true;
             }
             case R.id.insecure_connect_scan: {
                 // Launch the DeviceListActivity to see devices and do scan
-                Intent serverIntent = new Intent(PlayWithFriend.this, DeviceListActivity.class);
+                Intent serverIntent = new Intent(activity, DeviceListActivity.class);
                 startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_INSECURE);
                 return true;
             }
@@ -642,7 +659,7 @@ public class PlayWithFriend extends AppCompatActivity {
     }
 
     private void showAlertDialog(String message) {
-        alertDialog = new ConfirmDialog(PlayWithFriend.this);
+        alertDialog = new ConfirmDialog(activity);
         alertDialog.setTitle("Thông báo");
         alertDialog.setMessage(message);
         alertDialog.setCancelable(false);
@@ -650,14 +667,40 @@ public class PlayWithFriend extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 sendMessage(MessageCaro.CONTINUE, "no");
-                PlayWithFriend.this.finish();
+                alertDialog.dismiss();
+                activity.finish();
             }
         });
         alertDialog.show();
     }
 
+    private void showRuleDialog(int stone, int turn) {
+        if(ruleDialog != null)
+            return;
+        String msg = "";
+        if(stone > 0) {
+            msg += "Trên bàn cờ sẽ xuất hiện: " +stone + "\n";
+        }
+        if(turn > 0) {
+            msg += "Số lượt đổi cờ: " + turn;
+        }
+        if(!msg.equals("")) {
+            ruleDialog = new ConfirmDialog(activity);
+            ruleDialog.setTitle("Luật chơi");
+            ruleDialog.setMessage(msg);
+            ruleDialog.setCancelable(false);
+            ruleDialog.setButton(ConfirmDialog.NegativeButton, "OK", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ruleDialog.dismiss();
+                }
+            });
+            ruleDialog.show();
+        }
+    }
+
     private void showConfirmDialog(String message) {
-        confirmDialog = new ConfirmDialog(PlayWithFriend.this);
+        confirmDialog = new ConfirmDialog(activity);
         confirmDialog.setTitle("Thông báo");
         confirmDialog.setMessage(message);
         confirmDialog.setCancelable(false);
@@ -672,7 +715,8 @@ public class PlayWithFriend extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 sendMessage(MessageCaro.CONTINUE, "no");
-                PlayWithFriend.this.finish();
+                confirmDialog.dismiss();
+                activity.finish();
             }
         });
 
@@ -689,9 +733,9 @@ public class PlayWithFriend extends AppCompatActivity {
             if (noTurns == noTurnsMax) {
                 drawView.changeState();
                 noTurns = 0;
-                Toast.makeText(PlayWithFriend.this, "Thay đổi cờ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, "Thay đổi cờ", Toast.LENGTH_SHORT).show();
                 toggleMode = !toggleMode;
-                PlayWithFriend.this.supportInvalidateOptionsMenu();
+                activity.supportInvalidateOptionsMenu();
             }
         }
     }
@@ -740,6 +784,15 @@ public class PlayWithFriend extends AppCompatActivity {
             drawView.setSpace(space, padding);
             return true;
         }
+    }
+
+    private void reset() {
+        drawView.init();
+        drawView.invalidate();
+        noTurns = 0;
+        noStones = 0;
+        noTurnCreateStone = -1;
+        noTurnStone = 0;
     }
 
 }

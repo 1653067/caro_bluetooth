@@ -12,6 +12,15 @@ public class InfoPlay implements Serializable {
     private String name;
     private boolean music;
     private boolean sound;
+    private boolean effect;
+
+    public boolean isEffect() {
+        return effect;
+    }
+
+    public void setEffect(boolean effect) {
+        this.effect = effect;
+    }
 
     private static InfoPlay instance = null;
 
@@ -20,6 +29,7 @@ public class InfoPlay implements Serializable {
         haveSwapTurn = false;
         music = true;
         sound = true;
+        effect = true;
         noStones = 0;
         noTurns = 0;
         name = "Người chơi";
@@ -90,17 +100,20 @@ public class InfoPlay implements Serializable {
 
     public void setInfoPlay(String data) {
         String []items = data.split(";");
-        instance.setName(items[0]);
-        instance.setHaveStone(Boolean.parseBoolean(items[1]));
-        instance.setHaveSwapTurn(Boolean.parseBoolean(items[2]));
-        instance.setMusic(Boolean.parseBoolean(items[3]));
-        instance.setSound(Boolean.parseBoolean(items[4]));
-        instance.setNoStones(Integer.parseInt(items[5]));
-        instance.setNoTurns(Integer.parseInt(items[6]));
+        if(items.length == 8) {
+            instance.setName(items[0]);
+            instance.setHaveStone(Boolean.parseBoolean(items[1]));
+            instance.setHaveSwapTurn(Boolean.parseBoolean(items[2]));
+            instance.setMusic(Boolean.parseBoolean(items[3]));
+            instance.setSound(Boolean.parseBoolean(items[4]));
+            instance.setEffect(Boolean.parseBoolean(items[5]));
+            instance.setNoStones(Integer.parseInt(items[6]));
+            instance.setNoTurns(Integer.parseInt(items[7]));
+        }
     }
 
     @Override
     public String toString() {
-        return String.format("%s;%s;%s;%s;%s;%d;%d", name, haveStone, haveSwapTurn, music, sound, noStones, noTurns);
+        return String.format("%s;%s;%s;%s;%s;%s;%d;%d", name, haveStone, haveSwapTurn, music, sound, effect, noStones, noTurns);
     }
 }

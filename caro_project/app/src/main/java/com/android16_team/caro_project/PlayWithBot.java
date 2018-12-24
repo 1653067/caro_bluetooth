@@ -31,6 +31,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jetradarmobile.snowfall.SnowfallView;
+
 import java.util.Random;
 
 
@@ -60,6 +62,7 @@ public class PlayWithBot extends AppCompatActivity {
     private Toolbar myToolbar;
     private boolean toggleMode = true;
     private OptionDialog optionDialog;
+    private SnowfallView snowfallView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,7 +88,13 @@ public class PlayWithBot extends AppCompatActivity {
         //background toolbar
 //        DrawTool.drawToolBarBg(this, myToolbar);
 
+        InfoPlay infoPlay = InfoPlay.getInstance();
+        snowfallView = findViewById(R.id.snowfall);
+
         DrawTool.drawCaroBg(this, findViewById(R.id.caro_pane));
+        if(!infoPlay.isEffect()) {
+            snowfallView.setVisibility(View.GONE);
+        }
 
         drawView.setOnTouchListener(new View.OnTouchListener() {
             @Override

@@ -286,7 +286,11 @@ public class BluetoothService {
         updateUserInterfaceTitle();
 
         // Start the service over to restart listening mode
-        BluetoothService.this.start();
+//        BluetoothService.this.start();
+    }
+
+    public synchronized void setmState(int mState) {
+        this.mState = mState;
     }
 
     /**
@@ -513,11 +517,21 @@ public class BluetoothService {
             try {
                 mmOutStream.write(buffer);
 
+                boolean send = true;
+
                 // Share the sent message back to the UI Activity
-                mHandler.obtainMessage(Constants.MESSAGE_WRITE, -1, -1, buffer)
-                        .sendToTarget();
-                if (buffer[0] == MessageCaro.MESSAGE)
-                    messages.add(new MyMessage(new String(buffer, 1, buffer.length - 1), false));
+                switch (buffer[0]) {
+                    case MessageCaro.MESSAGE:
+                        messages.add(new MyMessage(new String(buffer, 1, buffer.length - 1), false));
+                        break;
+                    case MessageCaro.INFO:
+                    case MessageCaro.NAME:
+                        send = false;
+                        break;
+                }
+                if(send)
+                    mHandler.obtainMessage(Constants.MESSAGE_WRITE, -1, -1, buffer)
+                            .sendToTarget();
             } catch (IOException e) {
 //                Log.e(TAG, "Exception during write", e);
             }

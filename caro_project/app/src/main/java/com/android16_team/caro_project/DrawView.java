@@ -89,7 +89,14 @@ public class DrawView extends View {
         nCols = canvas.getWidth() / space + 1;
         nRows = canvas.getHeight() / space + 1;
 //        paint.setColor(Color.rgb(191, 203, 209));
-        paint.setColor(Color.rgb(255, 255, 255));
+
+        InfoPlay infoPlay = InfoPlay.getInstance();
+
+        if(infoPlay.isEffect()) {
+            paint.setColor(Color.rgb(255, 255, 255));
+        } else {
+            paint.setColor(Color.argb(125, 0, 0, 0));
+        }
         paint.setStrokeWidth(5);
 
         canvas.drawARGB(0, 255, 255, 255);
@@ -105,7 +112,7 @@ public class DrawView extends View {
         }
 
         if (curX != -1 && curY != -1) {
-            paint.setColor(Color.argb(153, 0, 0, 0));
+            paint.setColor(Color.argb((infoPlay.isEffect() ? 153 : 25), 0, 0, 0));
             paint.setStyle(Paint.Style.FILL);
             canvas.drawRect(new Rect(
                     curX * space + dx,

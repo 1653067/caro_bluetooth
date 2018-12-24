@@ -24,8 +24,8 @@ public class ConfirmDialog extends Dialog {
         btnPositive = this.findViewById(R.id.btnPositive);
         btnNegative = this.findViewById(R.id.btnNegative);
 
-        btnPositive.setVisibility(View.INVISIBLE);
-        btnNegative.setVisibility(View.INVISIBLE);
+        btnPositive.setVisibility(View.GONE);
+        btnNegative.setVisibility(View.GONE);
     }
 
     public void setButton(int which, String text, View.OnClickListener l) {

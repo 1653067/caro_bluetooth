@@ -89,6 +89,7 @@
         </LinearLayout>
 
     <com.jetradarmobile.snowfall.SnowfallView
+        android:id="@+id/snowfall"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:snowflakesNum="250"

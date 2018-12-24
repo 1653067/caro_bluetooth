@@ -59,6 +59,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         readData();
         startService(new Intent(this, MusicService.class));
         optionDialog = new OptionDialog(context, infoPlay);
+        if(!infoPlay.isEffect()) {
+            findViewById(R.id.snowfall).setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -110,13 +113,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onStop() {
+        saveData();
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        saveData();
         stopService(new Intent(this, MusicService.class));
     }
 
